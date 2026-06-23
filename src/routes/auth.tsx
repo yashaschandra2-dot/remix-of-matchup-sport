@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { hydrateLocalFromSupabase, fetchProfileBundle } from "@/lib/supabase-profile";
+import { hydrateLocalFromSupabase, fetchProfileBundle, hasCompletedOnboarding } from "@/lib/supabase-profile";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -75,9 +75,7 @@ function AuthPage() {
         if (!data.user) throw new Error("Sign-in failed");
         const { profile, sports } = await fetchProfileBundle(data.user.id);
         await hydrateLocalFromSupabase(data.user.id, data.user.email ?? email.trim());
-        const complete =
-          (profile as { completed?: boolean } | null)?.completed === true ||
-          (!!profile?.full_name && sports.length > 0);
+        const complete = hasCompletedOnboarding(profile, sports);
         toast.success("Welcome back");
         navigate({ to: complete ? "/home" : "/onboarding" });
       }

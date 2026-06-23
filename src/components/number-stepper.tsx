@@ -6,11 +6,10 @@ type Props = {
   onChange: (v: number) => void;
   min?: number;
   max?: number;
-  placeholder?: string;
 };
 
 /** Premium [-] [number] [+] selector. Long-press to fast-scroll. */
-export function NumberStepper({ value, onChange, min = 13, max = 100, placeholder = "—" }: Props) {
+export function NumberStepper({ value, onChange, min = 13, max = 100 }: Props) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const delayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const valRef = useRef<number>(value ?? min);
@@ -65,7 +64,7 @@ export function NumberStepper({ value, onChange, min = 13, max = 100, placeholde
   const disabledPlus = (value ?? min) >= max;
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card/40 p-2 select-none">
+    <div className="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-1 shadow-sm select-none">
       <button
         type="button"
         aria-label="Decrease"
@@ -74,12 +73,12 @@ export function NumberStepper({ value, onChange, min = 13, max = 100, placeholde
         onPointerUp={stopHold}
         onPointerLeave={stopHold}
         onPointerCancel={stopHold}
-        className="grid place-items-center size-12 rounded-xl bg-background/60 border border-border text-foreground transition active:scale-95 hover:border-primary/60 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="grid place-items-center size-7 rounded-sm text-muted-foreground transition active:scale-95 hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        <Minus className="size-5" />
+        <Minus className="size-4" />
       </button>
-      <div className="flex-1 text-center font-display text-3xl tabular-nums tracking-tight">
-        {value == null ? <span className="text-muted-foreground text-xl">{placeholder}</span> : value}
+      <div className="flex-1 text-center text-sm font-semibold tabular-nums text-foreground">
+        {value ?? 18}
       </div>
       <button
         type="button"
@@ -89,9 +88,9 @@ export function NumberStepper({ value, onChange, min = 13, max = 100, placeholde
         onPointerUp={stopHold}
         onPointerLeave={stopHold}
         onPointerCancel={stopHold}
-        className="grid place-items-center size-12 rounded-xl bg-primary text-primary-foreground transition active:scale-95 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="grid place-items-center size-7 rounded-sm text-muted-foreground transition active:scale-95 hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        <Plus className="size-5" />
+        <Plus className="size-4" />
       </button>
     </div>
   );

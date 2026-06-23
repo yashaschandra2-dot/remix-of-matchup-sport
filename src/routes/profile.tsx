@@ -373,7 +373,6 @@ function ProfilePage() {
                 onChange={(v) => setAge(String(v))}
                 min={13}
                 max={100}
-                placeholder="Age"
               />
             </Field>
             <Field label="Gender">

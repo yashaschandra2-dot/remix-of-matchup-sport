@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ActivvLogo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
@@ -21,12 +21,19 @@ import {
   type Gender,
 } from "@/lib/activv-store";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchProfileBundle, replaceUserSports } from "@/lib/supabase-profile";
+import { fetchProfileBundle, hasCompletedOnboarding, replaceUserSports } from "@/lib/supabase-profile";
 import { toast } from "sonner";
 import { Check, ChevronRight, Camera } from "lucide-react";
 import { NumberStepper } from "@/components/number-stepper";
 
 export const Route = createFileRoute("/onboarding")({
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    const user = data.session?.user;
+    if (!user) return;
+    const { profile, sports } = await fetchProfileBundle(user.id);
+    if (hasCompletedOnboarding(profile, sports)) throw redirect({ to: "/home" });
+  },
   head: () => ({ meta: [{ title: "Set up your profile · Activv" }] }),
   component: Onboarding,
 });
@@ -56,7 +63,7 @@ function Onboarding() {
       setUserId(data.user.id);
       setEmail(data.user.email ?? "");
       const { profile, sports } = await fetchProfileBundle(data.user.id);
-      if ((profile as { completed?: boolean } | null)?.completed === true) {
+      if (hasCompletedOnboarding(profile, sports)) {
         navigate({ to: "/home" });
         return;
       }
@@ -199,7 +206,6 @@ function Onboarding() {
                     onChange={(v) => setAge(String(v))}
                     min={13}
                     max={100}
-                    placeholder="Age"
                   />
                 </Field>
                 <Field label="Gender">
