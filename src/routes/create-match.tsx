@@ -387,6 +387,23 @@ function CreateMatch() {
 
           <div>
             <Label>Playing as</Label>
+          </div>
+
+          <div>
+            <Label>
+              Match duration <span className="text-muted-foreground font-normal">(optional)</span>
+            </Label>
+            <DurationPicker
+              value={form.duration_minutes}
+              onChange={(d) => setForm({ ...form, duration_minutes: d })}
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Used to track Active Minutes on the dashboard. Leave empty to skip.
+            </p>
+          </div>
+
+          <div>
+            <Label>Playing mode</Label>
             <div className="mt-1.5 grid grid-cols-2 gap-2">
               {(["Solo", "Group"] as PlayMode[]).map((mode) => {
                 const active = form.play_mode === mode;
