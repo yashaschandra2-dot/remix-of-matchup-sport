@@ -245,7 +245,9 @@ function Home() {
     () => computeAnalytics(userMatchesQuery.data ?? []),
     [userMatchesQuery.data],
   );
-  const hasHistory = (userMatchesQuery.data?.length ?? 0) > 0;
+  const hasHistory = (userMatchesQuery.data ?? []).some(
+    (m) => new Date(m.date_time).getTime() <= Date.now(),
+  );
   void tick;
 
 
@@ -615,10 +617,11 @@ function formatActiveMins(total: number): string {
   return `${h}h ${m}m`;
 }
 
-function computeAnalytics(matches: UserMatchRow[]) {
+function computeAnalytics(allMatches: UserMatchRow[]) {
   const now = new Date();
-  const startedJoined = matches.filter((m) => new Date(m.date_time) <= now);
-  const winRate = matches.length === 0 ? 0 : Math.round((startedJoined.length / matches.length) * 100);
+  // Only matches that have already started count toward dashboard stats.
+  const matches = allMatches.filter((m) => new Date(m.date_time) <= now);
+  const winRate = matches.length === 0 ? 0 : 100;
 
   // Streak: consecutive days ending today with at least one match (joined or scheduled)
   const dayKey = (d: Date) => d.toISOString().slice(0, 10);
