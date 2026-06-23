@@ -10,23 +10,24 @@ type Props = {
 
 /** Premium [-] [number] [+] selector. Long-press to fast-scroll. */
 export function NumberStepper({ value, onChange, min = 13, max = 100 }: Props) {
+  const defaultValue = Math.max(min, Math.min(max, 18));
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const delayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const valRef = useRef<number>(value ?? min);
+  const valRef = useRef<number>(value ?? defaultValue);
 
   useEffect(() => {
-    valRef.current = value ?? min;
-  }, [value, min]);
+    valRef.current = value ?? defaultValue;
+  }, [value, defaultValue]);
 
   const clamp = useCallback((n: number) => Math.max(min, Math.min(max, n)), [min, max]);
 
   const step = useCallback(
     (dir: 1 | -1) => {
-      const next = clamp((value ?? min) + dir);
+      const next = clamp((value ?? defaultValue) + dir);
       valRef.current = next;
       onChange(next);
     },
-    [value, min, clamp, onChange],
+    [value, defaultValue, clamp, onChange],
   );
 
   const stopHold = useCallback(() => {
@@ -60,8 +61,8 @@ export function NumberStepper({ value, onChange, min = 13, max = 100 }: Props) {
 
   useEffect(() => () => stopHold(), [stopHold]);
 
-  const disabledMinus = (value ?? min) <= min;
-  const disabledPlus = (value ?? min) >= max;
+  const disabledMinus = (value ?? defaultValue) <= min;
+  const disabledPlus = (value ?? defaultValue) >= max;
 
   return (
     <div className="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-1 shadow-sm select-none">
@@ -78,7 +79,7 @@ export function NumberStepper({ value, onChange, min = 13, max = 100 }: Props) {
         <Minus className="size-4" />
       </button>
       <div className="flex-1 text-center text-sm font-semibold tabular-nums text-foreground">
-        {value ?? 18}
+        {value ?? defaultValue}
       </div>
       <button
         type="button"
