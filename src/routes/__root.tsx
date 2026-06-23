@@ -15,7 +15,7 @@ import { Toaster } from "sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { applyTheme, getStoredTheme } from "../lib/theme";
 import { supabase } from "../integrations/supabase/client";
-import { fetchProfileBundle, hasCompletedOnboarding } from "../lib/supabase-profile";
+import { hasCompletedOnboarding, hydrateLocalFromSupabase } from "../lib/supabase-profile";
 
 function NotFoundComponent() {
   return (
@@ -138,7 +138,7 @@ function RootComponent() {
       const { data } = await supabase.auth.getSession();
       const user = data.session?.user;
       if (!user || cancelled) return;
-      const { profile, sports } = await fetchProfileBundle(user.id);
+      const { profile, sports } = await hydrateLocalFromSupabase(user.id, user.email ?? "");
       if (!cancelled && hasCompletedOnboarding(profile, sports)) {
         router.navigate({ to: "/home", replace: true });
       }
