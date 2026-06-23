@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { z } from "zod";
 import { ActivvLogo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +9,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { hydrateLocalFromSupabase, fetchProfileBundle, hasCompletedOnboarding } from "@/lib/supabase-profile";
 import { toast } from "sonner";
 
+const authSearchSchema = z.object({
+  mode: z.enum(["signup", "login"]).optional().catch("signup"),
+});
+
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Sign in · Activv" }] }),
+  validateSearch: authSearchSchema,
   component: AuthPage,
 });
 
@@ -25,7 +31,8 @@ function friendlyAuthError(message: string): string {
 }
 
 function AuthPage() {
-  return <AuthForm initialMode="signup" allowToggle />;
+  const { mode } = Route.useSearch();
+  return <AuthForm initialMode={mode ?? "signup"} allowToggle />;
 }
 
 export function AuthForm({
