@@ -318,6 +318,15 @@ export function MatchDetailDialog({
           </div>
         </div>
 
+        {(isCreator || isParticipant) && (
+          <Button
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => openDirections(activity.location)}
+          >
+            <MapPin className="size-4" /> Get Directions
+          </Button>
+        )}
+
         {activity.description && (
           <p className="text-sm text-foreground/80 border-l-2 border-primary/40 pl-3">
             {activity.description}
