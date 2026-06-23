@@ -40,7 +40,6 @@ import { toast } from "sonner";
 import {
   Camera,
   UserCircle2,
-  Trophy,
   Info,
   Plus,
   X,
