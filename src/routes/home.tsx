@@ -245,7 +245,9 @@ function Home() {
     () => computeAnalytics(userMatchesQuery.data ?? []),
     [userMatchesQuery.data],
   );
-  const hasHistory = (userMatchesQuery.data?.length ?? 0) > 0;
+  const hasHistory = (userMatchesQuery.data ?? []).some(
+    (m) => new Date(m.date_time).getTime() <= Date.now(),
+  );
   void tick;
 
 
