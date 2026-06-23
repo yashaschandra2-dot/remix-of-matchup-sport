@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { Check, ChevronRight, Camera } from "lucide-react";
 import { NumberStepper } from "@/components/number-stepper";
 import { CityPicker } from "@/components/city-picker";
+import { applyTheme, getStoredTheme, type Theme } from "@/lib/theme";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({ meta: [{ title: "Set up your profile · Activv" }] }),
@@ -34,12 +35,13 @@ export const Route = createFileRoute("/onboarding")({
 
 function Onboarding() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<"details" | "sports" | "levels">("details");
+  const [step, setStep] = useState<"details" | "sports" | "levels" | "theme">("details");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [levels, setLevels] = useState<Record<string, SkillLevel>>({});
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
+  const [theme, setTheme] = useState<Theme>("dark");
 
   // Profile details
   const [fullName, setFullName] = useState("");
@@ -49,6 +51,7 @@ function Onboarding() {
 
   useEffect(() => {
     (async () => {
+      setTheme(getStoredTheme());
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
         navigate({ to: "/auth" });
@@ -121,6 +124,7 @@ function Onboarding() {
           city: city.trim(),
           age: ageNum,
           gender: gender || null,
+          theme,
           completed: true,
         })
         .eq("id", userId);
@@ -144,13 +148,19 @@ function Onboarding() {
     }
   }
 
-  const stepLabel = step === "details" ? "1" : step === "sports" ? "2" : "3";
+  const stepLabel =
+    step === "details" ? "1" : step === "sports" ? "2" : step === "levels" ? "3" : "4";
+
+  function pickTheme(t: Theme) {
+    setTheme(t);
+    applyTheme(t);
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <header className="px-4 py-6 sm:px-6 flex items-center justify-between max-w-3xl w-full mx-auto">
         <ActivvLogo size="sm" />
-        <span className="chip">Step {stepLabel} of 3</span>
+        <span className="chip">Step {stepLabel} of 4</span>
       </header>
 
       <main className="flex-1 px-4 py-6 sm:px-6 max-w-3xl w-full mx-auto pb-20">
@@ -315,7 +325,47 @@ function Onboarding() {
 
             <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent flex gap-3">
               <Button variant="secondary" size="lg" onClick={() => setStep("sports")}>Back</Button>
-              <Button size="lg" className="flex-1 font-semibold" disabled={!allLeveled || saving} onClick={finish}>
+              <Button
+                size="lg"
+                className="flex-1 font-semibold"
+                disabled={!allLeveled}
+                onClick={() => setStep("theme")}
+              >
+                Continue <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          </>
+        )}
+        {step === "theme" && (
+          <>
+            <p className="text-[11px] uppercase tracking-[0.25em] text-primary">Step 04</p>
+            <h1 className="mt-2 text-4xl sm:text-5xl font-display leading-tight">
+              Choose your <span className="text-gradient-brand">theme</span>
+            </h1>
+            <p className="mt-3 text-muted-foreground">
+              You can always change this later in Profile settings.
+            </p>
+
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
+              <ThemePreviewCard
+                variant="dark"
+                label="Dark"
+                subtitle="Easy on the eyes"
+                selected={theme === "dark"}
+                onSelect={() => pickTheme("dark")}
+              />
+              <ThemePreviewCard
+                variant="light"
+                label="Light"
+                subtitle="Clean and minimal"
+                selected={theme === "light"}
+                onSelect={() => pickTheme("light")}
+              />
+            </div>
+
+            <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent flex gap-3">
+              <Button variant="secondary" size="lg" onClick={() => setStep("levels")}>Back</Button>
+              <Button size="lg" className="flex-1 font-semibold" disabled={saving} onClick={finish}>
                 {saving ? "Saving…" : "Find me a match"}
               </Button>
             </div>
@@ -323,6 +373,69 @@ function Onboarding() {
         )}
       </main>
     </div>
+  );
+}
+
+function ThemePreviewCard({
+  variant,
+  label,
+  subtitle,
+  selected,
+  onSelect,
+}: {
+  variant: "dark" | "light";
+  label: string;
+  subtitle: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const isDark = variant === "dark";
+  const bg = isDark ? "#0d0d0f" : "#ffffff";
+  const card = isDark ? "#1a1a1d" : "#f5f5f5";
+  const text = isDark ? "#f5f0e6" : "#111111";
+  const accent = isDark ? "#d4b46a" : "#111111";
+  const muted = isDark ? "#7a7568" : "#aaaaaa";
+  const border = isDark ? "rgba(255,255,255,0.08)" : "#e8e8e8";
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={`relative rounded-2xl border-2 p-3 text-left transition cursor-pointer ${
+        selected ? "border-primary shadow-[0_0_0_1px_var(--primary)]" : "border-border hover:border-primary/50"
+      }`}
+    >
+      {selected && (
+        <span className="absolute top-2.5 right-2.5 z-10 grid place-items-center size-6 rounded-full bg-primary text-primary-foreground">
+          <Check className="size-3.5" strokeWidth={3} />
+        </span>
+      )}
+      <div
+        className="rounded-xl overflow-hidden aspect-[3/4] p-2.5 flex flex-col gap-1.5"
+        style={{ background: bg, border: `1px solid ${border}` }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="h-2 w-10 rounded-full" style={{ background: accent }} />
+          <div className="size-3 rounded-full" style={{ background: muted, opacity: 0.6 }} />
+        </div>
+        <div className="h-2 w-16 rounded-full" style={{ background: text, opacity: 0.85 }} />
+        <div className="h-1.5 w-12 rounded-full" style={{ background: muted }} />
+        <div className="mt-1.5 rounded-lg p-2 flex-1 flex flex-col gap-1.5" style={{ background: card, border: `1px solid ${border}` }}>
+          <div className="h-1.5 w-3/4 rounded-full" style={{ background: text, opacity: 0.7 }} />
+          <div className="h-1.5 w-1/2 rounded-full" style={{ background: muted }} />
+          <div className="mt-auto h-4 rounded" style={{ background: accent }} />
+        </div>
+        <div className="rounded-lg p-1.5 flex items-center justify-around" style={{ background: card, border: `1px solid ${border}` }}>
+          <div className="size-2 rounded-full" style={{ background: accent }} />
+          <div className="size-2 rounded-full" style={{ background: muted, opacity: 0.6 }} />
+          <div className="size-2 rounded-full" style={{ background: muted, opacity: 0.6 }} />
+        </div>
+      </div>
+      <div className="mt-3 px-1">
+        <div className="font-display text-lg leading-tight">{label}</div>
+        <div className="text-xs text-muted-foreground mt-0.5">{subtitle}</div>
+      </div>
+    </button>
   );
 }
 
