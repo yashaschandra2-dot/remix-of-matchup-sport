@@ -100,7 +100,7 @@ function ProfilePage() {
   const [name, setName] = useState("");
   const [city, setCity] = useState("");
   const [bio, setBio] = useState("");
-  const [age, setAge] = useState("");
+  const [age, setAge] = useState("18");
   const [gender, setGender] = useState<Gender | "">("");
   const [editSports, setEditSports] = useState<UserSportRow[]>([]);
   const [addingSport, setAddingSport] = useState("");
@@ -131,7 +131,7 @@ function ProfilePage() {
         setName(p?.full_name ?? "");
         setCity(p?.city ?? "");
         setBio(p?.bio ?? "");
-        setAge(p?.age != null ? String(p.age) : "");
+        setAge(p?.age != null ? String(p.age) : "18");
         setGender((p?.gender as Gender | undefined) ?? "");
         setEditSports(bundle.sports);
       } catch (err) {

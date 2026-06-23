@@ -43,7 +43,7 @@ function Onboarding() {
   // Profile details
   const [fullName, setFullName] = useState("");
   const [city, setCity] = useState("Chicago, IL");
-  const [age, setAge] = useState("");
+  const [age, setAge] = useState("18");
   const [gender, setGender] = useState<Gender | "">("");
 
   useEffect(() => {
