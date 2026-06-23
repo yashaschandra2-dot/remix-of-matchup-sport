@@ -49,6 +49,24 @@ export const Route = createFileRoute("/home")({
 
 const PIE_COLORS = ["oklch(0.82 0.13 85)", "oklch(0.65 0.16 45)", "oklch(0.55 0.10 80)", "oklch(0.45 0.06 60)"];
 
+const US_STATE_ABBREV: Record<string, string> = {
+  Alabama: "AL", Alaska: "AK", Arizona: "AZ", Arkansas: "AR", California: "CA",
+  Colorado: "CO", Connecticut: "CT", Delaware: "DE", Florida: "FL", Georgia: "GA",
+  Hawaii: "HI", Idaho: "ID", Illinois: "IL", Indiana: "IN", Iowa: "IA",
+  Kansas: "KS", Kentucky: "KY", Louisiana: "LA", Maine: "ME", Maryland: "MD",
+  Massachusetts: "MA", Michigan: "MI", Minnesota: "MN", Mississippi: "MS", Missouri: "MO",
+  Montana: "MT", Nebraska: "NE", Nevada: "NV", "New Hampshire": "NH", "New Jersey": "NJ",
+  "New Mexico": "NM", "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", Ohio: "OH",
+  Oklahoma: "OK", Oregon: "OR", Pennsylvania: "PA", "Rhode Island": "RI", "South Carolina": "SC",
+  "South Dakota": "SD", Tennessee: "TN", Texas: "TX", Utah: "UT", Vermont: "VT",
+  Virginia: "VA", Washington: "WA", "West Virginia": "WV", Wisconsin: "WI", Wyoming: "WY",
+  "District of Columbia": "DC",
+};
+function stateAbbrev(name?: string): string | undefined {
+  if (!name) return undefined;
+  return US_STATE_ABBREV[name];
+}
+
 function Home() {
   const navigate = useNavigate();
   const [user, setUser] = useState<ActivvUser | null>(null);
