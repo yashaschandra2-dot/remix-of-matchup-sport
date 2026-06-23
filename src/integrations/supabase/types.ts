@@ -21,6 +21,7 @@ export type Database = {
           current_players: number
           date_time: string
           description: string | null
+          duration_minutes: number | null
           group_size: number | null
           id: string
           is_group: boolean
@@ -39,6 +40,7 @@ export type Database = {
           current_players?: number
           date_time: string
           description?: string | null
+          duration_minutes?: number | null
           group_size?: number | null
           id?: string
           is_group?: boolean
@@ -57,6 +59,7 @@ export type Database = {
           current_players?: number
           date_time?: string
           description?: string | null
+          duration_minutes?: number | null
           group_size?: number | null
           id?: string
           is_group?: boolean
