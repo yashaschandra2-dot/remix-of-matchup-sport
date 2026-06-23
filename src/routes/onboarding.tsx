@@ -55,6 +55,10 @@ function Onboarding() {
       setUserId(data.user.id);
       setEmail(data.user.email ?? "");
       const { profile, sports } = await fetchProfileBundle(data.user.id);
+      if ((profile as { completed?: boolean } | null)?.completed === true) {
+        navigate({ to: "/home" });
+        return;
+      }
       if (profile?.full_name) setFullName(profile.full_name);
       if (profile?.city) setCity(profile.city);
       if (profile?.age != null) setAge(String(profile.age));
@@ -115,6 +119,7 @@ function Onboarding() {
           city: city.trim(),
           age: ageNum,
           gender: gender || null,
+          completed: true,
         })
         .eq("id", userId);
       if (profErr) throw profErr;
