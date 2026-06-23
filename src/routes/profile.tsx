@@ -123,6 +123,11 @@ function ProfilePage() {
         setProfile(bundle.profile);
         setSports(bundle.sports);
         setAvatarUrl(await resolveAvatarUrl(bundle.profile?.avatar_url));
+        // Sync theme from DB so it stays in sync across devices
+        const dbTheme = (bundle.profile as { theme?: string } | null)?.theme;
+        if (dbTheme === "light" || dbTheme === "dark") {
+          applyTheme(dbTheme);
+        }
         const { data: pr } = await supabase
           .from("profiles")
           .select("points")
@@ -694,6 +699,12 @@ function ThemeToggle() {
   function setT(t: Theme) {
     setTheme(t);
     applyTheme(t);
+    // Persist to DB so theme follows the user across devices
+    supabase.auth.getUser().then(({ data }) => {
+      const uid = data.user?.id;
+      if (!uid) return;
+      supabase.from("profiles").update({ theme: t }).eq("id", uid).then(() => {});
+    });
   }
   return (
     <div className="rounded-xl border border-border bg-card/40 p-1 flex items-center">
