@@ -83,39 +83,39 @@
 
 .dark { color-scheme: dark; }
 
-/* Light theme overrides — premium white/grey with gold accent */
+/* Light theme overrides — premium monochrome (no gold/amber) */
 html.light {
   color-scheme: light;
 
-  --background: oklch(0.99 0.002 80);
-  --foreground: oklch(0.22 0.01 60);
+  --background: #f5f5f5;
+  --foreground: #111111;
 
-  --surface: oklch(1 0 0);
-  --surface-foreground: oklch(0.22 0.01 60);
+  --surface: #ffffff;
+  --surface-foreground: #111111;
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.01 60);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.01 60);
+  --card: #ffffff;
+  --card-foreground: #111111;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
 
-  --primary: oklch(0.74 0.14 82);
-  --primary-foreground: oklch(0.18 0.01 60);
+  --primary: #111111;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.96 0.004 80);
-  --secondary-foreground: oklch(0.22 0.01 60);
+  --secondary: #f0f0f0;
+  --secondary-foreground: #111111;
 
-  --muted: oklch(0.96 0.004 80);
-  --muted-foreground: oklch(0.48 0.01 75);
+  --muted: #f0f0f0;
+  --muted-foreground: #aaaaaa;
 
-  --accent: oklch(0.74 0.14 82);
-  --accent-foreground: oklch(0.18 0.01 60);
+  --accent: #111111;
+  --accent-foreground: #ffffff;
 
-  --destructive: oklch(0.58 0.20 25);
-  --destructive-foreground: oklch(0.99 0.005 80);
+  --destructive: #e24b4a;
+  --destructive-foreground: #ffffff;
 
-  --border: oklch(0.90 0.005 80);
-  --input: oklch(0.94 0.005 80);
-  --ring: oklch(0.74 0.14 82);
+  --border: #e8e8e8;
+  --input: #ffffff;
+  --ring: #111111;
 }
 
 @layer base {
@@ -131,9 +131,7 @@ html.light {
     -webkit-font-smoothing: antialiased;
   }
   html.light body {
-    background:
-      radial-gradient(900px 500px at 100% -10%, oklch(0.74 0.14 82 / 0.08), transparent 60%),
-      var(--color-background);
+    background: var(--color-background);
   }
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
@@ -189,19 +187,27 @@ html.light {
 html.light .surface-card {
   background: var(--color-card);
   border: 1px solid var(--color-border);
-  box-shadow: 0 1px 2px oklch(0 0 0 / 0.04), 0 8px 24px -16px oklch(0 0 0 / 0.08);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.03), 0 8px 24px -16px rgb(0 0 0 / 0.06);
   backdrop-filter: none;
 }
 html.light .surface-luxe {
-  background: linear-gradient(180deg, oklch(1 0 0), oklch(0.985 0.003 80));
-  border: 1px solid oklch(0.74 0.14 82 / 0.25);
-  box-shadow: 0 1px 2px oklch(0 0 0 / 0.04), 0 12px 32px -20px oklch(0 0 0 / 0.10);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.03), 0 12px 32px -20px rgb(0 0 0 / 0.08);
   backdrop-filter: none;
 }
 html.light .chip {
-  background: oklch(0.97 0.004 80);
+  background: #ffffff;
+  border-color: var(--color-border);
   color: var(--color-muted-foreground);
 }
 html.light .hairline {
-  background: linear-gradient(90deg, transparent, oklch(0 0 0 / 0.10), transparent);
+  background: linear-gradient(90deg, transparent, rgb(0 0 0 / 0.08), transparent);
+}
+
+/* Force the brand text gradient to solid black in light mode (no gold) */
+html.light .text-gradient-brand {
+  background: none;
+  -webkit-text-fill-color: #111111;
+  color: #111111;
 }
