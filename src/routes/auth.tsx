@@ -25,7 +25,17 @@ function friendlyAuthError(message: string): string {
 }
 
 function AuthPage() {
-  const [mode, setMode] = useState<"signup" | "login">("signup");
+  return <AuthForm initialMode="signup" allowToggle />;
+}
+
+export function AuthForm({
+  initialMode,
+  allowToggle = false,
+}: {
+  initialMode: "signup" | "login";
+  allowToggle?: boolean;
+}) {
+  const [mode, setMode] = useState<"signup" | "login">(initialMode);
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
 
@@ -106,20 +116,22 @@ function AuthPage() {
             </p>
           </div>
 
-          <div className="mt-7 grid grid-cols-2 p-1 rounded-full bg-muted text-xs font-medium">
-            {(["signup", "login"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMode(m)}
-                className={`py-2 rounded-full transition uppercase tracking-wider ${
-                  mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-                }`}
-              >
-                {m === "signup" ? "Sign up" : "Log in"}
-              </button>
-            ))}
-          </div>
+          {allowToggle && (
+            <div className="mt-7 grid grid-cols-2 p-1 rounded-full bg-muted text-xs font-medium">
+              {(["signup", "login"] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMode(m)}
+                  className={`py-2 rounded-full transition uppercase tracking-wider ${
+                    mode === m ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {m === "signup" ? "Sign up" : "Log in"}
+                </button>
+              ))}
+            </div>
+          )}
 
           <form onSubmit={submit} className="mt-6 space-y-4">
             <Field label="Email">
@@ -149,6 +161,18 @@ function AuthPage() {
                 We'll ask for your sports, city & details on the next step.
               </p>
             )}
+
+            <p className="text-[11px] text-center text-muted-foreground pt-2">
+              {mode === "signup" ? (
+                <>Already have an account?{" "}
+                  <Link to="/login" className="text-primary hover:underline">Log in</Link>
+                </>
+              ) : (
+                <>New to Activv?{" "}
+                  <Link to="/signup" className="text-primary hover:underline">Create account</Link>
+                </>
+              )}
+            </p>
           </form>
         </div>
       </main>
