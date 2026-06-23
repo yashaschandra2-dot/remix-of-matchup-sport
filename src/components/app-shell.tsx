@@ -33,17 +33,17 @@ export function AppShell({ children, hideHeader = false }: { children: ReactNode
         className="fixed bottom-0 inset-x-0 z-30 backdrop-blur-xl bg-background/90 border-t border-border"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
-        <div className="max-w-md mx-auto grid grid-cols-4 items-end h-20 px-2">
+        <div className="max-w-md mx-auto grid grid-cols-4 items-center h-16 px-2">
           <TabLink to={tabs[0].to} label={tabs[0].label} Icon={tabs[0].icon} active={pathname === tabs[0].to} />
 
-          {/* Create Match button (elevated) */}
-          <div className="flex justify-center">
+          {/* Create Match button (inline) */}
+          <div className="flex items-center justify-center h-full">
             <Link
               to="/create-match"
               aria-label="Create match"
-              className="-mt-8 size-16 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/40 ring-4 ring-background flex items-center justify-center transition active:scale-95 hover:brightness-110"
+              className="size-11 rounded-full bg-primary text-primary-foreground shadow-md shadow-primary/30 flex items-center justify-center transition active:scale-95 hover:brightness-110"
             >
-              <Plus className="size-7" strokeWidth={2.5} />
+              <Plus className="size-5" strokeWidth={2.75} />
             </Link>
           </div>
 
