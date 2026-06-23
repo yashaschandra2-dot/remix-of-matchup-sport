@@ -295,7 +295,10 @@ function Onboarding() {
                       <span className="text-2xl">{emoji}</span>
                       <span className="font-display text-xl">{sport}</span>
                     </div>
-                    <div className="mt-4 grid grid-cols-3 gap-2">
+                    <div
+                      className="mt-4 grid gap-2"
+                      style={{ gridTemplateColumns: "1fr 1fr 1fr" }}
+                    >
                       {LEVELS.map((l) => {
                         const active = levels[sport] === l.value;
                         return (
@@ -304,14 +307,16 @@ function Onboarding() {
                             type="button"
                             onClick={() => setLevel(sport, l.value)}
                             aria-pressed={active}
-                            className={`flex flex-col h-full min-h-[88px] rounded-xl border p-3 text-left transition cursor-pointer ${
+                            className={`flex flex-col w-full h-full min-h-[88px] rounded-xl border p-3 text-left transition cursor-pointer ${
                               active
                                 ? "border-primary bg-primary/10"
                                 : "border-border bg-background/30 hover:border-primary/50"
                             }`}
                           >
-                            <div className="text-sm font-semibold">{l.label}</div>
-                            <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                            <div className="text-sm font-semibold text-left">
+                              {l.label}
+                            </div>
+                            <div className="mt-1 text-[11px] leading-snug text-muted-foreground text-left">
                               {l.desc}
                             </div>
                           </button>
