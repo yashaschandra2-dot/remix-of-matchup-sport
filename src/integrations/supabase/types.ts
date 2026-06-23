@@ -181,15 +181,15 @@ export type Database = {
       join_activity: {
         Args: { p_activity_id: string }
         Returns: {
-          current_players: number
-          max_players: number
+          v_current_players: number
+          v_max_players: number
         }[]
       }
       leave_activity: {
         Args: { p_activity_id: string }
         Returns: {
-          current_players: number
-          max_players: number
+          v_current_players: number
+          v_max_players: number
         }[]
       }
     }
