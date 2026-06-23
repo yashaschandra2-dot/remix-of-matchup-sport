@@ -194,38 +194,17 @@ export function MatchDetailDialog({
       return;
     }
     setSubmitting(true);
-    // Atomic capacity check + increment: the `.lt()` guard ensures we only
-    // increment when there's actually a free spot, even under race conditions.
-    // If no row comes back, the match was full at the moment we tried.
-    const { data: updatedRow, error: updErr } = await supabase
-      .from("activities")
-      .update({ current_players: activity.current_players + 1 })
-      .eq("id", activity.id)
-      .lt("current_players", activity.max_players)
-      .select("id, current_players, max_players")
-      .maybeSingle();
-    if (updErr) {
+    // Atomic capacity check + participant insert + counter bump runs server-side
+    // in a SECURITY DEFINER function so non-creators (who can't UPDATE activities
+    // directly under RLS) can still join. Errors come back as plain messages.
+    const { error: rpcErr } = await supabase.rpc(
+      "join_activity" as never,
+      { p_activity_id: activity.id } as never,
+    );
+    if (rpcErr) {
       setSubmitting(false);
-      toast.error(updErr.message);
-      return;
-    }
-    if (!updatedRow) {
-      setSubmitting(false);
-      toast.error("This match is full");
+      toast.error(rpcErr.message || "Couldn't join this match");
       onChanged();
-      return;
-    }
-    // Spot reserved — now record participation. Roll back the increment if this fails.
-    const { error: insertErr } = await supabase
-      .from("match_participants" as never)
-      .insert({ activity_id: activity.id, user_id: authUserId } as never);
-    if (insertErr) {
-      await supabase
-        .from("activities")
-        .update({ current_players: Math.max(0, updatedRow.current_players - 1) })
-        .eq("id", activity.id);
-      setSubmitting(false);
-      toast.error(insertErr.message);
       return;
     }
     joinMatch({
@@ -272,20 +251,16 @@ export function MatchDetailDialog({
       return;
     }
     setSubmitting(true);
-    const { error: delErr } = await supabase
-      .from("match_participants" as never)
-      .delete()
-      .eq("activity_id", activity.id)
-      .eq("user_id", authUserId);
-    if (delErr) {
+    // Server-side atomic delete + decrement; bypasses creator-only UPDATE RLS.
+    const { error: rpcErr } = await supabase.rpc(
+      "leave_activity" as never,
+      { p_activity_id: activity.id } as never,
+    );
+    if (rpcErr) {
       setSubmitting(false);
-      toast.error(delErr.message);
+      toast.error(rpcErr.message);
       return;
     }
-    await supabase
-      .from("activities")
-      .update({ current_players: Math.max(0, activity.current_players - 1) })
-      .eq("id", activity.id);
     leaveMatch(activity.id);
     if (penalty < 0) {
       await supabase.rpc("add_points" as never, { p_delta: penalty } as never);
