@@ -20,7 +20,7 @@ function Landing() {
     <div className="min-h-screen flex flex-col">
       <header className="px-4 py-6 sm:px-6 flex items-center justify-between max-w-6xl w-full mx-auto">
         <ActivvLogo />
-        <Link to="/login">
+        <Link to="/auth" search={{ mode: "login" }}>
           <Button variant="ghost" size="sm">Sign in</Button>
         </Link>
       </header>
@@ -42,12 +42,12 @@ function Landing() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link to="/signup">
+              <Link to="/auth" search={{ mode: "signup" }}>
                 <Button size="lg" className="font-semibold">
                   Request access <ArrowRight className="size-4" />
                 </Button>
               </Link>
-              <Link to="/login">
+              <Link to="/auth" search={{ mode: "login" }}>
                 <Button size="lg" variant="secondary">I already have an account</Button>
               </Link>
             </div>
