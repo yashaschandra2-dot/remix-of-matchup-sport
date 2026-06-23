@@ -174,33 +174,39 @@ export function MatchDetailDialog({
       toast.error("You created this match.");
       return;
     }
-    if (full) {
-      toast.error("Match is full");
+    setSubmitting(true);
+    // Atomic capacity check + increment: the `.lt()` guard ensures we only
+    // increment when there's actually a free spot, even under race conditions.
+    // If no row comes back, the match was full at the moment we tried.
+    const { data: updatedRow, error: updErr } = await supabase
+      .from("activities")
+      .update({ current_players: activity.current_players + 1 })
+      .eq("id", activity.id)
+      .lt("current_players", activity.max_players)
+      .select("id, current_players, max_players")
+      .maybeSingle();
+    if (updErr) {
+      setSubmitting(false);
+      toast.error(updErr.message);
       return;
     }
-    setSubmitting(true);
+    if (!updatedRow) {
+      setSubmitting(false);
+      toast.error("This match is full");
+      onChanged();
+      return;
+    }
+    // Spot reserved — now record participation. Roll back the increment if this fails.
     const { error: insertErr } = await supabase
       .from("match_participants" as never)
       .insert({ activity_id: activity.id, user_id: authUserId } as never);
     if (insertErr) {
+      await supabase
+        .from("activities")
+        .update({ current_players: Math.max(0, updatedRow.current_players - 1) })
+        .eq("id", activity.id);
       setSubmitting(false);
       toast.error(insertErr.message);
-      return;
-    }
-    const { error: updErr } = await supabase
-      .from("activities")
-      .update({ current_players: activity.current_players + 1 })
-      .eq("id", activity.id)
-      .lt("current_players", activity.max_players);
-    if (updErr) {
-      // best-effort rollback
-      await supabase
-        .from("match_participants" as never)
-        .delete()
-        .eq("activity_id", activity.id)
-        .eq("user_id", authUserId);
-      setSubmitting(false);
-      toast.error(updErr.message);
       return;
     }
     joinMatch({
