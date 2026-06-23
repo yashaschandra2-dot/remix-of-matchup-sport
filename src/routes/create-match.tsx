@@ -48,6 +48,7 @@ function CreateMatch() {
     max_players: 4,
     play_mode: "Solo" as PlayMode,
     group_size: 2,
+    duration_minutes: null as number | null,
   });
 
   // Location picker state
@@ -169,6 +170,7 @@ function CreateMatch() {
       play_mode: form.play_mode,
       group_size: groupSize,
       notes: form.description || null,
+      duration_minutes: form.duration_minutes,
     });
     setSubmitting(false);
     if (error) {
