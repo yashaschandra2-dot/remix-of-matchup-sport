@@ -48,10 +48,50 @@ export async function uploadAvatar(userId: string, file: File): Promise<string> 
   if (error) throw error;
   const { error: updErr } = await supabase
     .from("profiles")
-    .update({ avatar_url: path })
+    .update({ avatar_url: path, photo_url: path })
     .eq("id", userId);
   if (updErr) throw updErr;
   return path;
+}
+
+/**
+ * Batch-sign a list of storage paths (or pass-through full URLs) from the
+ * private `avatars` bucket. Returns a map keyed by the original input value.
+ */
+export async function resolveAvatarUrls(
+  paths: (string | null | undefined)[],
+): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  const toSign: string[] = [];
+  for (const p of paths) {
+    if (!p) continue;
+    if (/^https?:\/\//.test(p)) {
+      out[p] = p;
+    } else if (!(p in out) && !toSign.includes(p)) {
+      toSign.push(p);
+    }
+  }
+  if (toSign.length === 0) return out;
+  const { data, error } = await supabase.storage
+    .from("avatars")
+    .createSignedUrls(toSign, 60 * 60);
+  if (error || !data) return out;
+  for (const item of data) {
+    if (item.path && item.signedUrl) out[item.path] = item.signedUrl;
+  }
+  return out;
+}
+
+/** Initials helper — never returns "?"; falls back to a person glyph upstream. */
+export function initialsFor(name: string | null | undefined, email?: string | null): string {
+  const src = (name ?? "").trim() || (email ?? "").trim();
+  if (!src) return "";
+  return src
+    .split(/[\s@._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("");
 }
 
 /** Mirrors the Supabase profile + sports into the local activv-store cache used by Home/Matches. */
