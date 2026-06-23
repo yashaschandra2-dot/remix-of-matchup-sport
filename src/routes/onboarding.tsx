@@ -189,6 +189,7 @@ function Onboarding() {
             <div className="mt-6 space-y-4">
               <Field label="Full name *">
                 <Input
+                  inputMode="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Jordan Carter"
@@ -225,8 +226,8 @@ function Onboarding() {
               )}
             </div>
 
-            <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent">
-              <Button size="lg" className="w-full font-semibold" onClick={goToSports}>
+            <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent pointer-events-none">
+              <Button size="lg" className="w-full font-semibold pointer-events-auto" onClick={goToSports}>
                 Continue <ChevronRight className="size-4" />
               </Button>
             </div>
@@ -266,11 +267,11 @@ function Onboarding() {
               })}
             </div>
 
-            <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent flex gap-3">
-              <Button variant="secondary" size="lg" onClick={() => setStep("details")}>Back</Button>
+            <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent pointer-events-none flex gap-3">
+              <Button variant="secondary" size="lg" className="pointer-events-auto" onClick={() => setStep("details")}>Back</Button>
               <Button
                 size="lg"
-                className="flex-1 font-semibold"
+                className="flex-1 font-semibold pointer-events-auto"
                 disabled={selected.size === 0}
                 onClick={() => setStep("levels")}
               >
@@ -328,11 +329,11 @@ function Onboarding() {
               })}
             </div>
 
-            <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent flex gap-3">
-              <Button variant="secondary" size="lg" onClick={() => setStep("sports")}>Back</Button>
+            <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent pointer-events-none flex gap-3">
+              <Button variant="secondary" size="lg" className="pointer-events-auto" onClick={() => setStep("sports")}>Back</Button>
               <Button
                 size="lg"
-                className="flex-1 font-semibold"
+                className="flex-1 font-semibold pointer-events-auto"
                 disabled={!allLeveled}
                 onClick={() => setStep("theme")}
               >
@@ -368,9 +369,9 @@ function Onboarding() {
               />
             </div>
 
-            <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent flex gap-3">
-              <Button variant="secondary" size="lg" onClick={() => setStep("levels")}>Back</Button>
-              <Button size="lg" className="flex-1 font-semibold" disabled={saving} onClick={finish}>
+            <div className="sticky bottom-0 left-0 right-0 mt-10 py-4 bg-gradient-to-t from-background to-transparent pointer-events-none flex gap-3">
+              <Button variant="secondary" size="lg" className="pointer-events-auto" onClick={() => setStep("levels")}>Back</Button>
+              <Button size="lg" className="flex-1 font-semibold pointer-events-auto" disabled={saving} onClick={finish}>
                 {saving ? "Saving…" : "Find me a match"}
               </Button>
             </div>

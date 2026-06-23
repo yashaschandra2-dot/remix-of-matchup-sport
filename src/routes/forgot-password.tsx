@@ -62,6 +62,7 @@ function ForgotPasswordPage() {
               <div className="space-y-1.5">
                 <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Email</Label>
                 <Input
+                  inputMode="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

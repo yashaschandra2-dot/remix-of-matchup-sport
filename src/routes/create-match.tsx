@@ -224,6 +224,7 @@ function CreateMatch() {
             </Label>
             <Input
               id="title"
+              inputMode="text"
               className="mt-1.5"
               placeholder="Saturday morning doubles"
               value={form.title}
@@ -252,6 +253,7 @@ function CreateMatch() {
                 <input
                   id="location"
                   type="text"
+                  inputMode="text"
                   value={locQuery}
                   placeholder={
                     loadingCourts ? "Loading nearby venues…" : "Search nearby courts or type a location"
@@ -264,7 +266,7 @@ function CreateMatch() {
                   }}
                   onFocus={() => setShowSuggestions(true)}
                   onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                  className="flex-1 bg-transparent py-2 text-base md:text-sm outline-none placeholder:text-muted-foreground"
+                  className="flex-1 bg-transparent py-2 text-base md:text-sm outline-none placeholder:text-muted-foreground [-webkit-user-select:text] [user-select:text] [touch-action:manipulation] pointer-events-auto"
                 />
                 {loadingCourts && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
                 {locQuery && !loadingCourts && (
@@ -372,6 +374,7 @@ function CreateMatch() {
             <Label htmlFor="mp">Additional players needed</Label>
             <Input
               id="mp"
+              inputMode="text"
               type="number"
               min={1}
               max={20}
@@ -427,6 +430,7 @@ function CreateMatch() {
               <Label htmlFor="gs">Group size</Label>
               <Input
                 id="gs"
+                inputMode="text"
                 type="number"
                 min={1}
                 max={10}
@@ -622,6 +626,7 @@ function DurationPicker({
       </div>
       {custom && (
         <Input
+          inputMode="text"
           type="number"
           min={5}
           max={600}

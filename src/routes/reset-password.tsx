@@ -76,6 +76,7 @@ function ResetPasswordPage() {
             <div className="space-y-1.5">
               <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">New password</Label>
               <Input
+                inputMode="text"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -86,6 +87,7 @@ function ResetPasswordPage() {
             <div className="space-y-1.5">
               <Label className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Confirm password</Label>
               <Input
+                inputMode="text"
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
