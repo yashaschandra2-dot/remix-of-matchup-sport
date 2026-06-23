@@ -157,6 +157,7 @@ function CourtsPage() {
         <div className="flex items-center gap-2">
           <Search className="size-4 text-muted-foreground" />
           <Input
+            inputMode="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by name or address"

@@ -142,10 +142,10 @@ export function AuthForm({
 
           <form onSubmit={submit} className="mt-6 space-y-4">
             <Field label="Email">
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" maxLength={120} />
+              <Input type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" maxLength={120} />
             </Field>
             <Field label="Password">
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" maxLength={64} />
+              <Input type="password" inputMode="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" maxLength={64} />
             </Field>
 
             {mode === "login" && (

@@ -398,7 +398,7 @@ function ProfilePage() {
             <DialogDescription>Update your personal details.</DialogDescription>
           </DialogHeader>
           <div className="grid sm:grid-cols-2 gap-3">
-            <Field label="Full name"><Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} /></Field>
+            <Field label="Full name"><Input inputMode="text" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} /></Field>
             <Field label="City"><CityPicker value={city} onChange={setCity} placeholder="Select your city" /></Field>
             <Field label="Age">
               <NumberStepper
@@ -553,13 +553,13 @@ function ChangePasswordDialog({
         </DialogHeader>
         <div className="space-y-3">
           <Field label="Current password">
-            <Input type="password" value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
+            <Input inputMode="text" type="password" value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" />
           </Field>
           <Field label="New password">
-            <Input type="password" value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" />
+            <Input inputMode="text" type="password" value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" />
           </Field>
           <Field label="Confirm new password">
-            <Input type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
+            <Input inputMode="text" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" />
           </Field>
         </div>
         <DialogFooter>
@@ -615,10 +615,10 @@ function ChangeEmailDialog({
         </DialogHeader>
         <div className="space-y-3">
           <Field label="Current email">
-            <Input value={currentEmail} disabled />
+            <Input inputMode="text" value={currentEmail} disabled />
           </Field>
           <Field label="New email">
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+            <Input inputMode="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
           </Field>
         </div>
         <DialogFooter>

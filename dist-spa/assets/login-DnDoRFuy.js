@@ -1,0 +1,1 @@
+import{r as e}from"./useRouter-BrX4kW3m.js";import{t}from"./index.spa-2dB_ZAAG.js";var n=e(),r=()=>(0,n.jsx)(t,{initialMode:`login`});export{r as component};
