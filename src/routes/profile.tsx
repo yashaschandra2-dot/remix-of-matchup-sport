@@ -47,6 +47,7 @@ import {
   Moon,
 } from "lucide-react";
 import { applyTheme, getStoredTheme, type Theme } from "@/lib/theme";
+import { NumberStepper } from "@/components/number-stepper";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profile · Activv" }] }),
@@ -358,7 +359,7 @@ function ProfilePage() {
 
       {/* EDIT PROFILE DIALOG */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit profile</DialogTitle>
             <DialogDescription>Update your personal details.</DialogDescription>
@@ -367,7 +368,13 @@ function ProfilePage() {
             <Field label="Full name"><Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} /></Field>
             <Field label="City"><Input value={city} onChange={(e) => setCity(e.target.value)} maxLength={80} /></Field>
             <Field label="Age">
-              <Input type="number" min={13} max={99} value={age} onChange={(e) => setAge(e.target.value)} />
+              <NumberStepper
+                value={age ? Number(age) : null}
+                onChange={(v) => setAge(String(v))}
+                min={13}
+                max={100}
+                placeholder="Age"
+              />
             </Field>
             <Field label="Gender">
               <Select value={gender} onValueChange={(v) => setGender(v as Gender)}>
