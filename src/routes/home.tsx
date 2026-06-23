@@ -545,8 +545,18 @@ function ActivityCard({
   );
 }
 
-function JoinedCard({ match: m, onLeft }: { match: JoinedMatch; onLeft: () => void }) {
+function JoinedCard({
+  match: m,
+  onLeft,
+  tick: _tick,
+}: {
+  match: JoinedMatch;
+  onLeft: (penalty: number) => void;
+  tick?: number;
+}) {
+  void _tick;
   const canLeave = canLeaveMatch(m.scheduledAt);
+  const penalty = leavePenaltyFor(m.scheduledAt);
   const when = new Date(m.scheduledAt);
   return (
     <div className="surface-card rounded-2xl p-5 border-primary/40">
@@ -562,7 +572,9 @@ function JoinedCard({ match: m, onLeft }: { match: JoinedMatch; onLeft: () => vo
         <div className="flex items-center gap-2"><Clock className="size-4 text-primary" /> {when.toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" })}</div>
       </div>
       {canLeave ? (
-        <Button variant="secondary" className="mt-4 w-full" onClick={onLeft}>Leave match (−10 pts)</Button>
+        <Button variant="secondary" className="mt-4 w-full" onClick={() => onLeft(penalty)}>
+          {leaveLabel(penalty)}
+        </Button>
       ) : (
         <Button variant="secondary" className="mt-4 w-full" disabled>
           <LockKeyhole className="size-4" /> Within 30 min — leave locked
