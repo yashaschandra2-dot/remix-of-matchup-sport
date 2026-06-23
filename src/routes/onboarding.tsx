@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { fetchProfileBundle, replaceUserSports } from "@/lib/supabase-profile";
 import { toast } from "sonner";
 import { Check, ChevronRight, Camera } from "lucide-react";
+import { NumberStepper } from "@/components/number-stepper";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({ meta: [{ title: "Set up your profile · Activv" }] }),
@@ -193,13 +194,12 @@ function Onboarding() {
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Age">
-                  <Input
-                    type="number"
+                  <NumberStepper
+                    value={age ? Number(age) : null}
+                    onChange={(v) => setAge(String(v))}
                     min={13}
-                    max={99}
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    placeholder="27"
+                    max={100}
+                    placeholder="Age"
                   />
                 </Field>
                 <Field label="Gender">

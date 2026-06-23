@@ -20,7 +20,6 @@ import {
   Trophy,
   Flame,
   Activity,
-  TrendingUp,
   Sparkles,
   LockKeyhole,
   Plus,
@@ -246,9 +245,7 @@ function Home() {
       {hasHistory && (
       <section className="grid lg:grid-cols-3 gap-4 mb-10">
         <div className="surface-luxe rounded-3xl p-6 lg:col-span-2">
-          <SectionHeader eyebrow="Real-time" title="Performance — last 14 days" action={
-            <span className="chip"><TrendingUp className="size-3" /> +18%</span>
-          } />
+          <SectionHeader eyebrow="Real-time" title="Performance — last 14 days" />
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data.performance} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
