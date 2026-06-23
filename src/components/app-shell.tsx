@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { ActivvLogo } from "@/components/brand";
 import { LayoutDashboard, User, MapPin, Plus } from "lucide-react";
 import { type ReactNode } from "react";
+import { NotificationsBell } from "@/components/notifications-bell";
 
 export function AppShell({ children, hideHeader = false }: { children: ReactNode; hideHeader?: boolean }) {
   const { pathname } = useLocation();
@@ -18,8 +19,9 @@ export function AppShell({ children, hideHeader = false }: { children: ReactNode
     <div className="min-h-screen flex flex-col">
       {!hideHeader && (
         <header className="sticky top-0 z-30 backdrop-blur-xl bg-background/70 border-b border-border">
-          <div className="px-4 py-3.5 sm:px-6 flex items-center max-w-6xl w-full mx-auto">
+          <div className="px-4 py-3.5 sm:px-6 flex items-center justify-between max-w-6xl w-full mx-auto">
             <Link to="/home" className="flex items-center"><ActivvLogo size="sm" /></Link>
+            <NotificationsBell />
           </div>
         </header>
       )}

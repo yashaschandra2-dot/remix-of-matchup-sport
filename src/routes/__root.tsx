@@ -16,6 +16,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { applyTheme, getStoredTheme } from "../lib/theme";
 import { supabase } from "../integrations/supabase/client";
 import { hasCompletedOnboarding, hydrateLocalFromSupabase } from "../lib/supabase-profile";
+import { requestPushPermissionAndRegister } from "../lib/push";
 
 function NotFoundComponent() {
   return (
@@ -129,6 +130,24 @@ function RootComponent() {
 
   useEffect(() => {
     applyTheme(getStoredTheme());
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      if (cancelled || !data.user) return;
+      void requestPushPermissionAndRegister(data.user.id);
+    })();
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        void requestPushPermissionAndRegister(session.user.id);
+      }
+    });
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {

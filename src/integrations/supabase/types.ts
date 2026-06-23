@@ -29,6 +29,7 @@ export type Database = {
           max_players: number
           notes: string | null
           play_mode: string
+          reminder_sent_at: string | null
           skill_level: string
           sport: string
           title: string
@@ -48,6 +49,7 @@ export type Database = {
           max_players: number
           notes?: string | null
           play_mode?: string
+          reminder_sent_at?: string | null
           skill_level: string
           sport: string
           title: string
@@ -67,6 +69,7 @@ export type Database = {
           max_players?: number
           notes?: string | null
           play_mode?: string
+          reminder_sent_at?: string | null
           skill_level?: string
           sport?: string
           title?: string
@@ -99,6 +102,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          in_app_enabled: boolean
+          match_cancelled: boolean
+          match_reminder: boolean
+          notifications_enabled: boolean
+          points_earned: boolean
+          push_enabled: boolean
+          someone_joined: boolean
+          someone_left: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          in_app_enabled?: boolean
+          match_cancelled?: boolean
+          match_reminder?: boolean
+          notifications_enabled?: boolean
+          points_earned?: boolean
+          push_enabled?: boolean
+          someone_joined?: boolean
+          someone_left?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          in_app_enabled?: boolean
+          match_cancelled?: boolean
+          match_reminder?: boolean
+          notifications_enabled?: boolean
+          points_earned?: boolean
+          push_enabled?: boolean
+          someone_joined?: boolean
+          someone_left?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          match_id: string | null
+          message: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          match_id?: string | null
+          message: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          match_id?: string | null
+          message?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -154,6 +229,30 @@ export type Database = {
         }
         Relationships: []
       }
+      push_tokens: {
+        Row: {
+          created_at: string
+          id: string
+          platform: string | null
+          token: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          platform?: string | null
+          token: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          platform?: string | null
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_sports: {
         Row: {
           created_at: string
@@ -184,6 +283,19 @@ export type Database = {
     }
     Functions: {
       add_points: { Args: { p_delta: number }; Returns: number }
+      award_match_points: {
+        Args: { p_delta: number; p_match_id: string }
+        Returns: number
+      }
+      insert_notification: {
+        Args: {
+          p_match_id?: string
+          p_message: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       join_activity: {
         Args: { p_activity_id: string }
         Returns: {
@@ -198,6 +310,7 @@ export type Database = {
           v_max_players: number
         }[]
       }
+      send_match_reminders: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never
