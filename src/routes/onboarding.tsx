@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ActivvLogo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
@@ -27,13 +27,6 @@ import { Check, ChevronRight, Camera } from "lucide-react";
 import { NumberStepper } from "@/components/number-stepper";
 
 export const Route = createFileRoute("/onboarding")({
-  beforeLoad: async () => {
-    const { data } = await supabase.auth.getSession();
-    const user = data.session?.user;
-    if (!user) return;
-    const { profile, sports } = await fetchProfileBundle(user.id);
-    if (hasCompletedOnboarding(profile, sports)) throw redirect({ to: "/home" });
-  },
   head: () => ({ meta: [{ title: "Set up your profile · Activv" }] }),
   component: Onboarding,
 });
