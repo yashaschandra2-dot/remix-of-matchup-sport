@@ -191,6 +191,7 @@ export type Database = {
           photo_url: string | null
           points: number
           skill_level: string | null
+          theme: string | null
           updated_at: string
         }
         Insert: {
@@ -208,6 +209,7 @@ export type Database = {
           photo_url?: string | null
           points?: number
           skill_level?: string | null
+          theme?: string | null
           updated_at?: string
         }
         Update: {
@@ -225,6 +227,7 @@ export type Database = {
           photo_url?: string | null
           points?: number
           skill_level?: string | null
+          theme?: string | null
           updated_at?: string
         }
         Relationships: []
