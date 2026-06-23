@@ -169,6 +169,8 @@ function ProfilePage() {
     try {
       const ageNum = age ? Number(age) : null;
       const payload = {
+        id: authUser.id,
+        email: authUser.email ?? null,
         full_name: name.trim() || null,
         city: city.trim() || null,
         bio: bio.trim() || null,
@@ -178,16 +180,15 @@ function ProfilePage() {
       };
       const { data: updated, error } = await supabase
         .from("profiles")
-        .update(payload)
-        .eq("id", authUser.id)
+        .upsert(payload, { onConflict: "id" })
         .select()
         .maybeSingle();
       if (error) {
-        console.error("[profile.save] update failed", error);
+        console.error("[profile.save] upsert failed", error);
         throw error;
       }
       if (!updated) {
-        const msg = "Profile row not found or update blocked by permissions.";
+        const msg = "Profile save returned no row — check RLS policies.";
         console.error("[profile.save]", msg);
         throw new Error(msg);
       }
