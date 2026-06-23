@@ -49,6 +49,7 @@ import {
 import { applyTheme, getStoredTheme, type Theme } from "@/lib/theme";
 import { NumberStepper } from "@/components/number-stepper";
 import { CityPicker } from "@/components/city-picker";
+import { NotificationPreferencesSection } from "@/components/notification-preferences";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profile · Activv" }] }),
@@ -365,6 +366,9 @@ function ProfilePage() {
         <Button variant="outline" className="w-full h-12" onClick={() => setEmailOpen(true)}>
           Change Email
         </Button>
+
+        {/* NOTIFICATIONS */}
+        <NotificationPreferencesSection />
 
         {/* THEME TOGGLE */}
         <ThemeToggle />
