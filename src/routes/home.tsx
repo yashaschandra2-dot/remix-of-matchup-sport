@@ -49,6 +49,21 @@ export const Route = createFileRoute("/home")({
 
 const PIE_COLORS = ["oklch(0.82 0.13 85)", "oklch(0.65 0.16 45)", "oklch(0.55 0.10 80)", "oklch(0.45 0.06 60)"];
 
+/** Points penalty (0 or negative) for leaving a match now. */
+function leavePenaltyFor(scheduledAt: string): number {
+  const minsUntil = (new Date(scheduledAt).getTime() - Date.now()) / 60000;
+  if (minsUntil >= 45) return 0;
+  if (minsUntil >= 30) return -5;
+  if (minsUntil >= 10) return -10;
+  if (minsUntil >= 0) return -15;
+  return 0;
+}
+
+function leaveLabel(p: number): string {
+  if (p === 0) return "Leave match (no penalty)";
+  return `Leave match (${p} pts)`;
+}
+
 const US_STATE_ABBREV: Record<string, string> = {
   Alabama: "AL", Alaska: "AK", Arizona: "AZ", Arkansas: "AR", California: "CA",
   Colorado: "CO", Connecticut: "CT", Delaware: "DE", Florida: "FL", Georgia: "GA",
@@ -279,14 +294,19 @@ function Home() {
               <JoinedCard
                 key={m.id}
                 match={m}
-                onLeft={() => {
+                tick={tick}
+                onLeft={(penalty) => {
                   const ok = canLeaveMatch(m.scheduledAt);
                   if (!ok) {
                     toast.error("Locked — within 30 min of start");
                     return;
                   }
                   leaveMatch(m.id);
-                  toast.success(`Left ${m.sport} match (−10 pts)`);
+                  toast.success(
+                    penalty === 0
+                      ? `Left ${m.sport} match`
+                      : `Left ${m.sport} match (${penalty} pts)`,
+                  );
                   refresh();
                 }}
               />
@@ -297,7 +317,6 @@ function Home() {
 
       {/* Live performance + sport distribution */}
       {/* Live performance + sport distribution */}
-      {hasHistory && (
       <section className="grid lg:grid-cols-3 gap-4 mb-10">
         <div className="surface-luxe rounded-3xl p-6 lg:col-span-2">
           <SectionHeader eyebrow="Real-time" title="Performance — last 14 days" />
@@ -310,13 +329,14 @@ function Home() {
                     <stop offset="100%" stopColor="oklch(0.82 0.13 85)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 0.06)" />
-                <XAxis dataKey="day" stroke="oklch(0.68 0.015 75)" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="oklch(0.68 0.015 75)" fontSize={11} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="day" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{
-                    background: "oklch(0.12 0.012 60)",
-                    border: "1px solid oklch(1 0 0 / 0.1)",
+                    background: "var(--card)",
+                    color: "var(--card-foreground)",
+                    border: "1px solid var(--border)",
                     borderRadius: 12,
                     fontSize: 12,
                   }}
@@ -325,10 +345,17 @@ function Home() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          {!hasHistory && (
+            <p className="mt-3 text-center text-sm text-muted-foreground">
+              Join matches to see your performance
+            </p>
+          )}
         </div>
 
         <div className="surface-luxe rounded-3xl p-6">
           <SectionHeader eyebrow="Distribution" title="Time per sport" />
+          {hasHistory ? (
+            <>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -339,8 +366,9 @@ function Home() {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    background: "oklch(0.12 0.012 60)",
-                    border: "1px solid oklch(1 0 0 / 0.1)",
+                    background: "var(--card)",
+                    color: "var(--card-foreground)",
+                    border: "1px solid var(--border)",
                     borderRadius: 12,
                     fontSize: 12,
                   }}
@@ -359,9 +387,14 @@ function Home() {
               </li>
             ))}
           </ul>
+            </>
+          ) : (
+            <div className="h-48 flex items-center justify-center text-sm text-muted-foreground text-center px-4">
+              Join matches to see your performance
+            </div>
+          )}
         </div>
       </section>
-      )}
 
 
 
@@ -525,8 +558,18 @@ function ActivityCard({
   );
 }
 
-function JoinedCard({ match: m, onLeft }: { match: JoinedMatch; onLeft: () => void }) {
+function JoinedCard({
+  match: m,
+  onLeft,
+  tick: _tick,
+}: {
+  match: JoinedMatch;
+  onLeft: (penalty: number) => void;
+  tick?: number;
+}) {
+  void _tick;
   const canLeave = canLeaveMatch(m.scheduledAt);
+  const penalty = leavePenaltyFor(m.scheduledAt);
   const when = new Date(m.scheduledAt);
   return (
     <div className="surface-card rounded-2xl p-5 border-primary/40">
@@ -542,7 +585,9 @@ function JoinedCard({ match: m, onLeft }: { match: JoinedMatch; onLeft: () => vo
         <div className="flex items-center gap-2"><Clock className="size-4 text-primary" /> {when.toLocaleString(undefined, { weekday: "short", hour: "numeric", minute: "2-digit" })}</div>
       </div>
       {canLeave ? (
-        <Button variant="secondary" className="mt-4 w-full" onClick={onLeft}>Leave match (−10 pts)</Button>
+        <Button variant="secondary" className="mt-4 w-full" onClick={() => onLeft(penalty)}>
+          {leaveLabel(penalty)}
+        </Button>
       ) : (
         <Button variant="secondary" className="mt-4 w-full" disabled>
           <LockKeyhole className="size-4" /> Within 30 min — leave locked
