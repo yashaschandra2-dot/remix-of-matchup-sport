@@ -133,6 +133,24 @@ function Home() {
     };
   }, [authUserId, queryClient]);
 
+  // Realtime activities — keep "Full" badge / spots-left counters live
+  // whenever anyone joins or leaves a match.
+  useEffect(() => {
+    const channel = supabase
+      .channel("activities-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "activities" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["activities", "upcoming"] });
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   // Real user match history for analytics
   const userMatchesQuery = useQuery({
     queryKey: ["user-matches", authUserId],
