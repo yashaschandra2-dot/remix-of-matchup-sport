@@ -9,14 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as HomeRouteImport } from './routes/home'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as CreateMatchRouteImport } from './routes/create-match'
 import { Route as CourtsRouteImport } from './routes/courts'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -30,6 +37,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const HomeRoute = HomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreateMatchRoute = CreateMatchRouteImport.update({
@@ -58,18 +70,22 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/courts': typeof CourtsRoute
   '/create-match': typeof CreateMatchRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/courts': typeof CourtsRoute
   '/create-match': typeof CreateMatchRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,9 +93,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/courts': typeof CourtsRoute
   '/create-match': typeof CreateMatchRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/home': typeof HomeRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -88,27 +106,33 @@ export interface FileRouteTypes {
     | '/auth'
     | '/courts'
     | '/create-match'
+    | '/forgot-password'
     | '/home'
     | '/onboarding'
     | '/profile'
+    | '/reset-password'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/courts'
     | '/create-match'
+    | '/forgot-password'
     | '/home'
     | '/onboarding'
     | '/profile'
+    | '/reset-password'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/courts'
     | '/create-match'
+    | '/forgot-password'
     | '/home'
     | '/onboarding'
     | '/profile'
+    | '/reset-password'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -116,13 +140,22 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CourtsRoute: typeof CourtsRoute
   CreateMatchRoute: typeof CreateMatchRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   HomeRoute: typeof HomeRoute
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
@@ -142,6 +175,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/create-match': {
@@ -180,9 +220,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CourtsRoute: CourtsRoute,
   CreateMatchRoute: CreateMatchRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   HomeRoute: HomeRoute,
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

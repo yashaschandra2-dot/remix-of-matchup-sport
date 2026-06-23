@@ -4,16 +4,8 @@ import { ActivvLogo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { GENDERS, type Gender } from "@/lib/activv-store";
 import { supabase } from "@/integrations/supabase/client";
-import { hydrateLocalFromSupabase } from "@/lib/supabase-profile";
+import { hydrateLocalFromSupabase, fetchProfileBundle } from "@/lib/supabase-profile";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -21,16 +13,23 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+function friendlyAuthError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("invalid login")) return "Incorrect email or password.";
+  if (m.includes("email not confirmed")) return "Please confirm your email first — check your inbox.";
+  if (m.includes("user not found") || m.includes("no user")) return "We couldn't find an account with that email.";
+  if (m.includes("already registered") || m.includes("already exists")) return "An account with that email already exists. Try logging in.";
+  if (m.includes("password should be")) return "Password must be at least 6 characters.";
+  if (m.includes("rate limit")) return "Too many attempts. Please wait a moment and try again.";
+  return message;
+}
+
 function AuthPage() {
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [city, setCity] = useState("Chicago, IL");
-  const [age, setAge] = useState("");
-  const [gender, setGender] = useState<Gender | "">("");
   const [password, setPassword] = useState("");
 
   async function submit(e: React.FormEvent) {
@@ -39,17 +38,12 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        if (!name.trim() || !email.trim() || !password) {
-          toast.error("Please fill out all fields");
+        if (!email.trim() || !password) {
+          toast.error("Enter your email and password");
           return;
         }
-        const ageNum = Number(age);
-        if (!age || Number.isNaN(ageNum) || ageNum < 13 || ageNum > 99) {
-          toast.error("Enter a valid age (13–99)");
-          return;
-        }
-        if (!gender) {
-          toast.error("Select your gender");
+        if (password.length < 6) {
+          toast.error("Password must be at least 6 characters");
           return;
         }
 
@@ -57,13 +51,7 @@ function AuthPage() {
           email: email.trim(),
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/home`,
-            data: {
-              full_name: name.trim(),
-              city: city.trim() || "Chicago, IL",
-              age: String(ageNum),
-              gender,
-            },
+            emailRedirectTo: `${window.location.origin}/onboarding`,
           },
         });
         if (error) throw error;
@@ -72,21 +60,28 @@ function AuthPage() {
           return;
         }
         await hydrateLocalFromSupabase(data.user.id, data.user.email ?? email.trim());
-        toast.success(`Welcome, ${name.trim().split(" ")[0]}`);
+        toast.success("Account created — let's set up your profile");
         navigate({ to: "/onboarding" });
       } else {
+        if (!email.trim() || !password) {
+          toast.error("Enter your email and password");
+          return;
+        }
         const { data, error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
         });
         if (error) throw error;
         if (!data.user) throw new Error("Sign-in failed");
-        const { sports } = await hydrateLocalFromSupabase(data.user.id, data.user.email ?? email.trim());
+        const { profile, sports } = await fetchProfileBundle(data.user.id);
+        await hydrateLocalFromSupabase(data.user.id, data.user.email ?? email.trim());
+        const complete = !!profile?.full_name && sports.length > 0;
         toast.success("Welcome back");
-        navigate({ to: sports.length > 0 ? "/home" : "/onboarding" });
+        navigate({ to: complete ? "/home" : "/onboarding" });
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong";
+      const raw = err instanceof Error ? err.message : "Something went wrong";
+      const msg = friendlyAuthError(raw);
       toast.error(msg);
     } finally {
       setBusy(false);
@@ -127,52 +122,33 @@ function AuthPage() {
           </div>
 
           <form onSubmit={submit} className="mt-6 space-y-4">
-            {mode === "signup" && (
-              <Field label="Full name">
-                <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Jordan Carter" maxLength={80} />
-              </Field>
-            )}
             <Field label="Email">
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" maxLength={120} />
             </Field>
-            {mode === "signup" && (
-              <>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Age">
-                    <Input
-                      type="number"
-                      min={13}
-                      max={99}
-                      value={age}
-                      onChange={(e) => setAge(e.target.value)}
-                      placeholder="27"
-                    />
-                  </Field>
-                  <Field label="Gender">
-                    <Select value={gender} onValueChange={(v) => setGender(v as Gender)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {GENDERS.map((g) => (
-                          <SelectItem key={g} value={g}>{g}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                </div>
-                <Field label="City">
-                  <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Chicago, IL" maxLength={80} />
-                </Field>
-              </>
-            )}
             <Field label="Password">
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" maxLength={64} />
             </Field>
 
+            {mode === "login" && (
+              <div className="text-right -mt-1">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs uppercase tracking-[0.18em] text-primary hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            )}
+
             <Button type="submit" className="w-full font-semibold tracking-wide" size="lg" disabled={busy}>
               {busy ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
             </Button>
+
+            {mode === "signup" && (
+              <p className="text-[11px] text-center text-muted-foreground">
+                We'll ask for your sports, city & details on the next step.
+              </p>
+            )}
           </form>
         </div>
       </main>
