@@ -178,6 +178,20 @@ export type Database = {
     }
     Functions: {
       add_points: { Args: { p_delta: number }; Returns: number }
+      join_activity: {
+        Args: { p_activity_id: string }
+        Returns: {
+          current_players: number
+          max_players: number
+        }[]
+      }
+      leave_activity: {
+        Args: { p_activity_id: string }
+        Returns: {
+          current_players: number
+          max_players: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
