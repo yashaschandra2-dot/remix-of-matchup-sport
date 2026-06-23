@@ -35,9 +35,8 @@ export function AppShell({ children, hideHeader = false }: { children: ReactNode
       >
         <div className="max-w-md mx-auto grid grid-cols-4 items-end h-20 px-2">
           <TabLink to={tabs[0].to} label={tabs[0].label} Icon={tabs[0].icon} active={pathname === tabs[0].to} />
-          <TabLink to={tabs[1].to} label={tabs[1].label} Icon={tabs[1].icon} active={pathname === tabs[1].to} />
 
-          {/* Center Create Match button (elevated) */}
+          {/* Create Match button (elevated) */}
           <div className="flex justify-center">
             <Link
               to="/create-match"
@@ -48,6 +47,7 @@ export function AppShell({ children, hideHeader = false }: { children: ReactNode
             </Link>
           </div>
 
+          <TabLink to={tabs[1].to} label={tabs[1].label} Icon={tabs[1].icon} active={pathname === tabs[1].to} />
           <TabLink to={tabsRight[0].to} label={tabsRight[0].label} Icon={tabsRight[0].icon} active={pathname === tabsRight[0].to} />
         </div>
       </nav>
