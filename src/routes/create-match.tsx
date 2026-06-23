@@ -386,10 +386,6 @@ function CreateMatch() {
           </div>
 
           <div>
-            <Label>Playing as</Label>
-          </div>
-
-          <div>
             <Label>
               Match duration <span className="text-muted-foreground font-normal">(optional)</span>
             </Label>
