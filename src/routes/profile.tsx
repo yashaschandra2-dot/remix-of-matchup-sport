@@ -48,6 +48,7 @@ import {
 } from "lucide-react";
 import { applyTheme, getStoredTheme, type Theme } from "@/lib/theme";
 import { NumberStepper } from "@/components/number-stepper";
+import { CityPicker } from "@/components/city-picker";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profile · Activv" }] }),
@@ -366,7 +367,7 @@ function ProfilePage() {
           </DialogHeader>
           <div className="grid sm:grid-cols-2 gap-3">
             <Field label="Full name"><Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} /></Field>
-            <Field label="City"><Input value={city} onChange={(e) => setCity(e.target.value)} maxLength={80} /></Field>
+            <Field label="City"><CityPicker value={city} onChange={setCity} placeholder="Select your city" /></Field>
             <Field label="Age">
               <NumberStepper
                 value={age ? Number(age) : null}

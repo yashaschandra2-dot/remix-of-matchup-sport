@@ -25,6 +25,7 @@ import { fetchProfileBundle, hasCompletedOnboarding, replaceUserSports } from "@
 import { toast } from "sonner";
 import { Check, ChevronRight, Camera } from "lucide-react";
 import { NumberStepper } from "@/components/number-stepper";
+import { CityPicker } from "@/components/city-picker";
 
 export const Route = createFileRoute("/onboarding")({
   head: () => ({ meta: [{ title: "Set up your profile · Activv" }] }),
@@ -185,12 +186,7 @@ function Onboarding() {
                 />
               </Field>
               <Field label="City *">
-                <Input
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  placeholder="Chicago, IL"
-                  maxLength={80}
-                />
+                <CityPicker value={city} onChange={setCity} placeholder="Select your city" />
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Age">
