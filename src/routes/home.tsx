@@ -20,7 +20,6 @@ import {
   Trophy,
   Flame,
   Activity,
-  TrendingUp,
   Sparkles,
   LockKeyhole,
   Plus,
