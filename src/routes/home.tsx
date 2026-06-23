@@ -49,12 +49,67 @@ export const Route = createFileRoute("/home")({
 
 const PIE_COLORS = ["oklch(0.82 0.13 85)", "oklch(0.65 0.16 45)", "oklch(0.55 0.10 80)", "oklch(0.45 0.06 60)"];
 
+const US_STATE_ABBREV: Record<string, string> = {
+  Alabama: "AL", Alaska: "AK", Arizona: "AZ", Arkansas: "AR", California: "CA",
+  Colorado: "CO", Connecticut: "CT", Delaware: "DE", Florida: "FL", Georgia: "GA",
+  Hawaii: "HI", Idaho: "ID", Illinois: "IL", Indiana: "IN", Iowa: "IA",
+  Kansas: "KS", Kentucky: "KY", Louisiana: "LA", Maine: "ME", Maryland: "MD",
+  Massachusetts: "MA", Michigan: "MI", Minnesota: "MN", Mississippi: "MS", Missouri: "MO",
+  Montana: "MT", Nebraska: "NE", Nevada: "NV", "New Hampshire": "NH", "New Jersey": "NJ",
+  "New Mexico": "NM", "New York": "NY", "North Carolina": "NC", "North Dakota": "ND", Ohio: "OH",
+  Oklahoma: "OK", Oregon: "OR", Pennsylvania: "PA", "Rhode Island": "RI", "South Carolina": "SC",
+  "South Dakota": "SD", Tennessee: "TN", Texas: "TX", Utah: "UT", Vermont: "VT",
+  Virginia: "VA", Washington: "WA", "West Virginia": "WV", Wisconsin: "WI", Wyoming: "WY",
+  "District of Columbia": "DC",
+};
+function stateAbbrev(name?: string): string | undefined {
+  if (!name) return undefined;
+  return US_STATE_ABBREV[name];
+}
+
 function Home() {
   const navigate = useNavigate();
   const [user, setUser] = useState<ActivvUser | null>(null);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
   const [openMatch, setOpenMatch] = useState<MatchDetailActivity | null>(null);
+  const [liveLocation, setLiveLocation] = useState<string>("Locating…");
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setLiveLocation("Location unavailable");
+      return;
+    }
+    let cancelled = false;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+            { headers: { Accept: "application/json" } },
+          );
+          if (!res.ok) throw new Error("reverse geocode failed");
+          const j = await res.json();
+          const a = j.address ?? {};
+          const city =
+            a.city || a.town || a.village || a.hamlet || a.suburb || a.county || a.state;
+          const region = a.state_code || stateAbbrev(a.state) || a.state || a.country_code?.toUpperCase();
+          const label = [city, region].filter(Boolean).join(", ");
+          if (!cancelled) setLiveLocation(label || "Location unavailable");
+        } catch {
+          if (!cancelled) setLiveLocation("Location unavailable");
+        }
+      },
+      () => {
+        if (!cancelled) setLiveLocation("Location unavailable");
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const u = getUser();
@@ -194,7 +249,7 @@ function Home() {
       <section className="mb-10">
         <span className="chip">
           <span className="size-1.5 rounded-full bg-primary animate-pulse" />
-          Live · {user.city || "Chicago, IL"}
+          Live · {liveLocation}
         </span>
         <h1 className="mt-3 text-4xl sm:text-5xl font-display leading-tight">
           Hey {firstName}, <span className="text-gradient-brand">on form today.</span>
