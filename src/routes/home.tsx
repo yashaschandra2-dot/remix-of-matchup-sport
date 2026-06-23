@@ -158,7 +158,7 @@ function Home() {
       if (!authUserId) return [] as UserMatchRow[];
       const { data, error } = await supabase
         .from("match_participants")
-        .select("activity_id, joined_at, activities!inner(date_time, sport)")
+        .select("activity_id, joined_at, activities!inner(date_time, sport, duration_minutes)")
         .eq("user_id", authUserId);
       if (error) throw error;
       return (data ?? []).map((r: any) => ({
@@ -166,6 +166,7 @@ function Home() {
         joined_at: r.joined_at as string,
         date_time: r.activities.date_time as string,
         sport: r.activities.sport as string,
+        duration_minutes: (r.activities.duration_minutes ?? null) as number | null,
       }));
     },
     enabled: !!authUserId,
@@ -206,7 +207,7 @@ function Home() {
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
         <Kpi icon={<Trophy className="size-4" />} label="Win rate" value={`${data.winRate}%`} delta={hasHistory ? "from your matches" : "—"} up={hasHistory && data.winRate > 0} />
         <Kpi icon={<Flame className="size-4" />} label="Streak" value={`${data.streak}`} delta={data.streak > 0 ? "days in a row" : "—"} />
-        <Kpi icon={<Activity className="size-4" />} label="Active mins" value={`${data.activeMins}`} delta="this week" />
+        <Kpi icon={<Activity className="size-4" />} label="Active mins" value={formatActiveMins(data.activeMins)} delta="this week" />
         <Kpi icon={<Sparkles className="size-4" />} label="Activv points" value={`${pointsQuery.data ?? 0}`} delta="live" up />
       </section>
       {!hasHistory && (
@@ -505,7 +506,17 @@ type UserMatchRow = {
   joined_at: string;
   date_time: string;
   sport: string;
+  duration_minutes: number | null;
 };
+
+function formatActiveMins(total: number): string {
+  if (!total || total <= 0) return "0m";
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
 
 function computeAnalytics(matches: UserMatchRow[]) {
   const now = new Date();
@@ -530,11 +541,13 @@ function computeAnalytics(matches: UserMatchRow[]) {
   weekStart.setHours(0, 0, 0, 0);
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekEnd.getDate() + 7);
+  // Sum actual duration_minutes for matches that have already started this week.
+  // Matches without a set duration are excluded rather than estimated.
   const inWeek = matches.filter((m) => {
     const t = new Date(m.date_time);
-    return t >= weekStart && t < weekEnd;
+    return t >= weekStart && t < weekEnd && t <= now && m.duration_minutes != null;
   });
-  const activeMins = inWeek.length * 90;
+  const activeMins = inWeek.reduce((sum, m) => sum + (m.duration_minutes ?? 0), 0);
 
   // Performance — last 14 days, points earned per day (approx 25 pts per join, by joined_at)
   const performance: { day: string; score: number }[] = [];
