@@ -75,7 +75,9 @@ function AuthPage() {
         if (!data.user) throw new Error("Sign-in failed");
         const { profile, sports } = await fetchProfileBundle(data.user.id);
         await hydrateLocalFromSupabase(data.user.id, data.user.email ?? email.trim());
-        const complete = !!profile?.full_name && sports.length > 0;
+        const complete =
+          (profile as { completed?: boolean } | null)?.completed === true ||
+          (!!profile?.full_name && sports.length > 0);
         toast.success("Welcome back");
         navigate({ to: complete ? "/home" : "/onboarding" });
       }
