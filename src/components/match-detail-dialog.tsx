@@ -39,6 +39,23 @@ function deletePenalty(scheduledAt: string): number {
   return -15;
 }
 
+/** Opens maps for the given location using the same platform detection as Courts. */
+function openDirections(location: string) {
+  const dest = encodeURIComponent(location);
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  let url: string;
+  if (isIOS) {
+    url = `maps://maps.apple.com/?daddr=${dest}`;
+  } else if (isAndroid) {
+    url = `https://maps.google.com/?daddr=${dest}`;
+  } else {
+    url = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+  }
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
 export interface MatchDetailActivity {
   id: string;
   sport: string;
@@ -300,6 +317,15 @@ export function MatchDetailDialog({
             {full ? " · Full" : ` · ${spotsLeft} spot${spotsLeft === 1 ? "" : "s"} left`}
           </div>
         </div>
+
+        {(isCreator || isParticipant) && (
+          <Button
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+            onClick={() => openDirections(activity.location)}
+          >
+            <MapPin className="size-4" /> Get Directions
+          </Button>
+        )}
 
         {activity.description && (
           <p className="text-sm text-foreground/80 border-l-2 border-primary/40 pl-3">
