@@ -23,6 +23,7 @@ export type Database = {
           description: string | null
           group_size: number | null
           id: string
+          is_group: boolean
           location: string
           max_players: number
           notes: string | null
@@ -40,6 +41,7 @@ export type Database = {
           description?: string | null
           group_size?: number | null
           id?: string
+          is_group?: boolean
           location: string
           max_players: number
           notes?: string | null
@@ -57,6 +59,7 @@ export type Database = {
           description?: string | null
           group_size?: number | null
           id?: string
+          is_group?: boolean
           location?: string
           max_players?: number
           notes?: string | null
@@ -96,39 +99,51 @@ export type Database = {
       }
       profiles: {
         Row: {
+          activv_points: number
           age: number | null
           avatar_url: string | null
           bio: string | null
           city: string | null
           created_at: string
+          email: string | null
           full_name: string | null
           gender: string | null
           id: string
+          photo_url: string | null
           points: number
+          skill_level: string | null
           updated_at: string
         }
         Insert: {
+          activv_points?: number
           age?: number | null
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string | null
           gender?: string | null
           id: string
+          photo_url?: string | null
           points?: number
+          skill_level?: string | null
           updated_at?: string
         }
         Update: {
+          activv_points?: number
           age?: number | null
           avatar_url?: string | null
           bio?: string | null
           city?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string | null
           gender?: string | null
           id?: string
+          photo_url?: string | null
           points?: number
+          skill_level?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -137,18 +152,21 @@ export type Database = {
         Row: {
           created_at: string
           level: string
+          skill_level: string | null
           sport: string
           user_id: string
         }
         Insert: {
           created_at?: string
           level: string
+          skill_level?: string | null
           sport: string
           user_id: string
         }
         Update: {
           created_at?: string
           level?: string
+          skill_level?: string | null
           sport?: string
           user_id?: string
         }
