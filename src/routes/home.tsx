@@ -317,7 +317,6 @@ function Home() {
 
       {/* Live performance + sport distribution */}
       {/* Live performance + sport distribution */}
-      {hasHistory && (
       <section className="grid lg:grid-cols-3 gap-4 mb-10">
         <div className="surface-luxe rounded-3xl p-6 lg:col-span-2">
           <SectionHeader eyebrow="Real-time" title="Performance — last 14 days" />
@@ -330,13 +329,14 @@ function Home() {
                     <stop offset="100%" stopColor="oklch(0.82 0.13 85)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 0.06)" />
-                <XAxis dataKey="day" stroke="oklch(0.68 0.015 75)" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="oklch(0.68 0.015 75)" fontSize={11} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="day" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{
-                    background: "oklch(0.12 0.012 60)",
-                    border: "1px solid oklch(1 0 0 / 0.1)",
+                    background: "var(--card)",
+                    color: "var(--card-foreground)",
+                    border: "1px solid var(--border)",
                     borderRadius: 12,
                     fontSize: 12,
                   }}
@@ -345,10 +345,17 @@ function Home() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          {!hasHistory && (
+            <p className="mt-3 text-center text-sm text-muted-foreground">
+              Join matches to see your performance
+            </p>
+          )}
         </div>
 
         <div className="surface-luxe rounded-3xl p-6">
           <SectionHeader eyebrow="Distribution" title="Time per sport" />
+          {hasHistory ? (
+            <>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -359,8 +366,9 @@ function Home() {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    background: "oklch(0.12 0.012 60)",
-                    border: "1px solid oklch(1 0 0 / 0.1)",
+                    background: "var(--card)",
+                    color: "var(--card-foreground)",
+                    border: "1px solid var(--border)",
                     borderRadius: 12,
                     fontSize: 12,
                   }}
@@ -379,9 +387,14 @@ function Home() {
               </li>
             ))}
           </ul>
+            </>
+          ) : (
+            <div className="h-48 flex items-center justify-center text-sm text-muted-foreground text-center px-4">
+              Join matches to see your performance
+            </div>
+          )}
         </div>
       </section>
-      )}
 
 
 
