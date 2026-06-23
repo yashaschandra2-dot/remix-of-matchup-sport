@@ -319,8 +319,8 @@ function ProfilePage() {
                   <span className="text-2xl shrink-0">{emoji}</span>
                   <div className="min-w-0 flex-1">
                     <div className="font-display text-base truncate">{s.sport}</div>
-                    <div className="text-[10px] uppercase tracking-[0.18em] text-primary flex items-center gap-1">
-                      <Trophy className="size-3" /> {s.level}
+                    <div className="text-[10px] uppercase tracking-[0.18em] text-primary">
+                      {s.level}
                     </div>
                   </div>
                 </div>
