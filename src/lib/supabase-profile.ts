@@ -4,6 +4,7 @@ import { saveUser, signOut as clearLocal, type ActivvUser, type Gender, type Ski
 export type ProfileRow = {
   id: string;
   full_name: string | null;
+  completed: boolean;
   city: string | null;
   bio: string | null;
   age: number | null;
@@ -26,6 +27,14 @@ export async function fetchProfileBundle(userId: string) {
     profile: profile as ProfileRow | null,
     sports: ((sports ?? []) as UserSportRow[]),
   };
+}
+
+export function hasCompletedOnboarding(profile: ProfileRow | null, sports: UserSportRow[]) {
+  return (
+    profile?.completed === true ||
+    (profile?.full_name != null && profile.full_name.trim().length > 0) ||
+    sports.length > 0
+  );
 }
 
 /** Resolves a signed URL for an avatar stored in the private `avatars` bucket. */

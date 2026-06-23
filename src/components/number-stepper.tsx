@@ -6,28 +6,28 @@ type Props = {
   onChange: (v: number) => void;
   min?: number;
   max?: number;
-  placeholder?: string;
 };
 
 /** Premium [-] [number] [+] selector. Long-press to fast-scroll. */
-export function NumberStepper({ value, onChange, min = 13, max = 100, placeholder = "—" }: Props) {
+export function NumberStepper({ value, onChange, min = 13, max = 100 }: Props) {
+  const defaultValue = Math.max(min, Math.min(max, 18));
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const delayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const valRef = useRef<number>(value ?? min);
+  const valRef = useRef<number>(value ?? defaultValue);
 
   useEffect(() => {
-    valRef.current = value ?? min;
-  }, [value, min]);
+    valRef.current = value ?? defaultValue;
+  }, [value, defaultValue]);
 
   const clamp = useCallback((n: number) => Math.max(min, Math.min(max, n)), [min, max]);
 
   const step = useCallback(
     (dir: 1 | -1) => {
-      const next = clamp((value ?? min) + dir);
+      const next = clamp((value ?? defaultValue) + dir);
       valRef.current = next;
       onChange(next);
     },
-    [value, min, clamp, onChange],
+    [value, defaultValue, clamp, onChange],
   );
 
   const stopHold = useCallback(() => {
@@ -61,11 +61,11 @@ export function NumberStepper({ value, onChange, min = 13, max = 100, placeholde
 
   useEffect(() => () => stopHold(), [stopHold]);
 
-  const disabledMinus = (value ?? min) <= min;
-  const disabledPlus = (value ?? min) >= max;
+  const disabledMinus = (value ?? defaultValue) <= min;
+  const disabledPlus = (value ?? defaultValue) >= max;
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card/40 p-2 select-none">
+    <div className="flex h-9 w-full items-center rounded-md border border-input bg-transparent px-1 shadow-sm select-none">
       <button
         type="button"
         aria-label="Decrease"
@@ -74,12 +74,12 @@ export function NumberStepper({ value, onChange, min = 13, max = 100, placeholde
         onPointerUp={stopHold}
         onPointerLeave={stopHold}
         onPointerCancel={stopHold}
-        className="grid place-items-center size-12 rounded-xl bg-background/60 border border-border text-foreground transition active:scale-95 hover:border-primary/60 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="grid place-items-center size-7 rounded-sm text-muted-foreground transition active:scale-95 hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        <Minus className="size-5" />
+        <Minus className="size-4" />
       </button>
-      <div className="flex-1 text-center font-display text-3xl tabular-nums tracking-tight">
-        {value == null ? <span className="text-muted-foreground text-xl">{placeholder}</span> : value}
+      <div className="flex-1 text-center text-sm font-semibold tabular-nums text-foreground">
+        {value ?? defaultValue}
       </div>
       <button
         type="button"
@@ -89,9 +89,9 @@ export function NumberStepper({ value, onChange, min = 13, max = 100, placeholde
         onPointerUp={stopHold}
         onPointerLeave={stopHold}
         onPointerCancel={stopHold}
-        className="grid place-items-center size-12 rounded-xl bg-primary text-primary-foreground transition active:scale-95 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
+        className="grid place-items-center size-7 rounded-sm text-muted-foreground transition active:scale-95 hover:bg-accent hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        <Plus className="size-5" />
+        <Plus className="size-4" />
       </button>
     </div>
   );

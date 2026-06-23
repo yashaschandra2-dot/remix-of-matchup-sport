@@ -21,7 +21,7 @@ import {
   type Gender,
 } from "@/lib/activv-store";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchProfileBundle, replaceUserSports } from "@/lib/supabase-profile";
+import { fetchProfileBundle, hasCompletedOnboarding, replaceUserSports } from "@/lib/supabase-profile";
 import { toast } from "sonner";
 import { Check, ChevronRight, Camera } from "lucide-react";
 import { NumberStepper } from "@/components/number-stepper";
@@ -43,7 +43,7 @@ function Onboarding() {
   // Profile details
   const [fullName, setFullName] = useState("");
   const [city, setCity] = useState("Chicago, IL");
-  const [age, setAge] = useState("");
+  const [age, setAge] = useState("18");
   const [gender, setGender] = useState<Gender | "">("");
 
   useEffect(() => {
@@ -56,7 +56,7 @@ function Onboarding() {
       setUserId(data.user.id);
       setEmail(data.user.email ?? "");
       const { profile, sports } = await fetchProfileBundle(data.user.id);
-      if ((profile as { completed?: boolean } | null)?.completed === true) {
+      if (hasCompletedOnboarding(profile, sports)) {
         navigate({ to: "/home" });
         return;
       }
@@ -199,7 +199,6 @@ function Onboarding() {
                     onChange={(v) => setAge(String(v))}
                     min={13}
                     max={100}
-                    placeholder="Age"
                   />
                 </Field>
                 <Field label="Gender">

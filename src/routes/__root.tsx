@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -13,6 +14,8 @@ import appCss from "../styles.css?url";
 import { Toaster } from "sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { applyTheme, getStoredTheme } from "../lib/theme";
+import { supabase } from "../integrations/supabase/client";
+import { hasCompletedOnboarding, hydrateLocalFromSupabase } from "../lib/supabase-profile";
 
 function NotFoundComponent() {
   return (
@@ -121,10 +124,37 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => {
     applyTheme(getStoredTheme());
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function redirectCompletedUser() {
+      if (pathname !== "/onboarding") return;
+      const { data } = await supabase.auth.getSession();
+      const user = data.session?.user;
+      if (!user || cancelled) return;
+      const { profile, sports } = await hydrateLocalFromSupabase(user.id, user.email ?? "");
+      if (!cancelled && hasCompletedOnboarding(profile, sports)) {
+        router.navigate({ to: "/home", replace: true });
+      }
+    }
+
+    redirectCompletedUser();
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+        setTimeout(() => void redirectCompletedUser(), 0);
+      }
+    });
+    return () => {
+      cancelled = true;
+      data.subscription.unsubscribe();
+    };
+  }, [pathname, router]);
 
   return (
     <QueryClientProvider client={queryClient}>
