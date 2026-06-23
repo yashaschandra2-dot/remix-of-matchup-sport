@@ -39,6 +39,23 @@ function deletePenalty(scheduledAt: string): number {
   return -15;
 }
 
+/** Opens maps for the given location using the same platform detection as Courts. */
+function openDirections(location: string) {
+  const dest = encodeURIComponent(location);
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  let url: string;
+  if (isIOS) {
+    url = `maps://maps.apple.com/?daddr=${dest}`;
+  } else if (isAndroid) {
+    url = `https://maps.google.com/?daddr=${dest}`;
+  } else {
+    url = `https://www.google.com/maps/dir/?api=1&destination=${dest}`;
+  }
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
 export interface MatchDetailActivity {
   id: string;
   sport: string;
