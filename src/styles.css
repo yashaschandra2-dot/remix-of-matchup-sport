@@ -138,10 +138,14 @@ html.light {
     letter-spacing: -0.025em;
     font-weight: 500;
   }
-  /* Ensure inputs and buttons are always tappable and selectable on mobile (Capacitor/Android) */
-  input, textarea, button, [role="button"] {
+  /* Ensure inputs are always selectable and tappable on mobile (Capacitor/Android) */
+  input, textarea {
     -webkit-user-select: text;
     user-select: text;
+    touch-action: manipulation;
+    pointer-events: auto;
+  }
+  button, [role="button"] {
     touch-action: manipulation;
     pointer-events: auto;
   }
