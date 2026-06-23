@@ -294,14 +294,19 @@ function Home() {
               <JoinedCard
                 key={m.id}
                 match={m}
-                onLeft={() => {
+                tick={tick}
+                onLeft={(penalty) => {
                   const ok = canLeaveMatch(m.scheduledAt);
                   if (!ok) {
                     toast.error("Locked — within 30 min of start");
                     return;
                   }
                   leaveMatch(m.id);
-                  toast.success(`Left ${m.sport} match (−10 pts)`);
+                  toast.success(
+                    penalty === 0
+                      ? `Left ${m.sport} match`
+                      : `Left ${m.sport} match (${penalty} pts)`,
+                  );
                   refresh();
                 }}
               />
