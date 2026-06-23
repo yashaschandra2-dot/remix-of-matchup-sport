@@ -547,3 +547,94 @@ function TimePicker({
   );
 }
 
+const DURATION_PRESETS: { label: string; minutes: number }[] = [
+  { label: "30 mins", minutes: 30 },
+  { label: "45 mins", minutes: 45 },
+  { label: "1 hour", minutes: 60 },
+  { label: "1.5 hours", minutes: 90 },
+  { label: "2 hours", minutes: 120 },
+  { label: "2.5 hours", minutes: 150 },
+  { label: "3 hours", minutes: 180 },
+];
+
+function DurationPicker({
+  value,
+  onChange,
+}: {
+  value: number | null;
+  onChange: (v: number | null) => void;
+}) {
+  const isPreset = value != null && DURATION_PRESETS.some((p) => p.minutes === value);
+  const [custom, setCustom] = useState<boolean>(value != null && !isPreset);
+  const [customMins, setCustomMins] = useState<string>(value != null && !isPreset ? String(value) : "");
+
+  return (
+    <div className="mt-1.5 space-y-2">
+      <div className="flex flex-wrap gap-2">
+        {DURATION_PRESETS.map((p) => {
+          const active = !custom && value === p.minutes;
+          return (
+            <button
+              key={p.minutes}
+              type="button"
+              onClick={() => {
+                setCustom(false);
+                onChange(p.minutes);
+              }}
+              className={`rounded-full px-3 py-1.5 border text-xs font-medium transition ${
+                active
+                  ? "bg-primary/10 text-primary border-primary/40"
+                  : "border-border text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {p.label}
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => {
+            setCustom(true);
+            const n = customMins ? Number(customMins) : NaN;
+            onChange(Number.isFinite(n) && n > 0 ? n : null);
+          }}
+          className={`rounded-full px-3 py-1.5 border text-xs font-medium transition ${
+            custom
+              ? "bg-primary/10 text-primary border-primary/40"
+              : "border-border text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Custom
+        </button>
+        {(value != null || custom) && (
+          <button
+            type="button"
+            onClick={() => {
+              setCustom(false);
+              setCustomMins("");
+              onChange(null);
+            }}
+            className="rounded-full px-3 py-1.5 border border-border text-xs text-muted-foreground hover:text-foreground"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+      {custom && (
+        <Input
+          type="number"
+          min={5}
+          max={600}
+          placeholder="Minutes"
+          value={customMins}
+          onChange={(e) => {
+            setCustomMins(e.target.value);
+            const n = Number(e.target.value);
+            onChange(Number.isFinite(n) && n > 0 ? n : null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
