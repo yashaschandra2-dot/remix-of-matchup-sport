@@ -395,7 +395,7 @@ function CreateMatch() {
             </Label>
             <DurationPicker
               value={form.duration_minutes}
-              onChange={(d) => setForm({ ...form, duration_minutes: d })}
+              onChange={(d: number | null) => setForm({ ...form, duration_minutes: d })}
             />
             <p className="mt-1 text-xs text-muted-foreground">
               Used to track Active Minutes on the dashboard. Leave empty to skip.
