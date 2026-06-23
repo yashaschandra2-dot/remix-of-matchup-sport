@@ -168,23 +168,45 @@ function ProfilePage() {
     setSaving(true);
     try {
       const ageNum = age ? Number(age) : null;
-      const { error } = await supabase
+      const payload = {
+        full_name: name.trim() || null,
+        city: city.trim() || null,
+        bio: bio.trim() || null,
+        age: ageNum && !Number.isNaN(ageNum) ? ageNum : null,
+        gender: gender || null,
+        updated_at: new Date().toISOString(),
+      };
+      const { data: updated, error } = await supabase
         .from("profiles")
-        .update({
-          full_name: name.trim() || null,
-          city: city.trim() || null,
-          bio: bio.trim() || null,
-          age: ageNum && !Number.isNaN(ageNum) ? ageNum : null,
-          gender: gender || null,
-        })
-        .eq("id", authUser.id);
-      if (error) throw error;
-      await replaceUserSports(authUser.id, editSports);
+        .update(payload)
+        .eq("id", authUser.id)
+        .select()
+        .maybeSingle();
+      if (error) {
+        console.error("[profile.save] update failed", error);
+        throw error;
+      }
+      if (!updated) {
+        const msg = "Profile row not found or update blocked by permissions.";
+        console.error("[profile.save]", msg);
+        throw new Error(msg);
+      }
+      try {
+        await replaceUserSports(authUser.id, editSports);
+      } catch (sportsErr) {
+        console.error("[profile.save] sports replace failed", sportsErr);
+        throw sportsErr;
+      }
+      // Apply server-confirmed values immediately, then refetch as backup.
+      setProfile(updated as ProfileRow);
+      setSports(editSports);
       await reload();
       setEditOpen(false);
       toast.success("Profile updated");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not save");
+      const message = err instanceof Error ? err.message : "Could not save your profile";
+      console.error("[profile.save] error", err);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
