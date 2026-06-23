@@ -95,7 +95,16 @@ export function MatchDetailDialog({
   const [submitting, setSubmitting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [, setNowTick] = useState(0);
   const navigate = useNavigate();
+
+  // Re-render every 15s so the leave/delete penalty label updates in real time
+  // as the match start approaches.
+  useEffect(() => {
+    if (!open) return;
+    const id = setInterval(() => setNowTick((t) => t + 1), 15000);
+    return () => clearInterval(id);
+  }, [open]);
 
   const isCreator = !!activity && !!authUserId && activity.creator_id === authUserId;
   const isParticipant = useMemo(
@@ -412,7 +421,7 @@ export function MatchDetailDialog({
               ) : penalty < 0 ? (
                 <><LogOut className="size-4" /> Leave match ({penalty} pts)</>
               ) : (
-                <><LogOut className="size-4" /> Leave match</>
+                <><LogOut className="size-4" /> Leave match (no penalty)</>
               )}
             </Button>
           ) : full ? (
