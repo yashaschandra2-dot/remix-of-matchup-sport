@@ -49,6 +49,21 @@ export const Route = createFileRoute("/home")({
 
 const PIE_COLORS = ["oklch(0.82 0.13 85)", "oklch(0.65 0.16 45)", "oklch(0.55 0.10 80)", "oklch(0.45 0.06 60)"];
 
+/** Points penalty (0 or negative) for leaving a match now. */
+function leavePenaltyFor(scheduledAt: string): number {
+  const minsUntil = (new Date(scheduledAt).getTime() - Date.now()) / 60000;
+  if (minsUntil >= 45) return 0;
+  if (minsUntil >= 30) return -5;
+  if (minsUntil >= 10) return -10;
+  if (minsUntil >= 0) return -15;
+  return 0;
+}
+
+function leaveLabel(p: number): string {
+  if (p === 0) return "Leave match (no penalty)";
+  return `Leave match (${p} pts)`;
+}
+
 const US_STATE_ABBREV: Record<string, string> = {
   Alabama: "AL", Alaska: "AK", Arizona: "AZ", Arkansas: "AR", California: "CA",
   Colorado: "CO", Connecticut: "CT", Delaware: "DE", Florida: "FL", Georgia: "GA",
