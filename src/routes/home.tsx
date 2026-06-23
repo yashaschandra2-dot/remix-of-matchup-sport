@@ -55,6 +55,43 @@ function Home() {
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
   const [openMatch, setOpenMatch] = useState<MatchDetailActivity | null>(null);
+  const [liveLocation, setLiveLocation] = useState<string>("Locating…");
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setLiveLocation("Location unavailable");
+      return;
+    }
+    let cancelled = false;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+            { headers: { Accept: "application/json" } },
+          );
+          if (!res.ok) throw new Error("reverse geocode failed");
+          const j = await res.json();
+          const a = j.address ?? {};
+          const city =
+            a.city || a.town || a.village || a.hamlet || a.suburb || a.county || a.state;
+          const region = a.state_code || stateAbbrev(a.state) || a.state || a.country_code?.toUpperCase();
+          const label = [city, region].filter(Boolean).join(", ");
+          if (!cancelled) setLiveLocation(label || "Location unavailable");
+        } catch {
+          if (!cancelled) setLiveLocation("Location unavailable");
+        }
+      },
+      () => {
+        if (!cancelled) setLiveLocation("Location unavailable");
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const u = getUser();
@@ -194,7 +231,7 @@ function Home() {
       <section className="mb-10">
         <span className="chip">
           <span className="size-1.5 rounded-full bg-primary animate-pulse" />
-          Live · {user.city || "Chicago, IL"}
+          Live · {liveLocation}
         </span>
         <h1 className="mt-3 text-4xl sm:text-5xl font-display leading-tight">
           Hey {firstName}, <span className="text-gradient-brand">on form today.</span>
