@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { joinMatch, leaveMatch, SPORTS } from "@/lib/activv-store";
+import { resolveAvatarUrls, initialsFor } from "@/lib/supabase-profile";
 import { Crown, MapPin, Clock, Users, LockKeyhole, Loader2, LogOut, UserPlus, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
@@ -55,6 +56,7 @@ interface ProfileLite {
   id: string;
   full_name: string | null;
   avatar_url: string | null;
+  signedAvatarUrl?: string | null;
 }
 
 export function MatchDetailDialog({
@@ -111,24 +113,41 @@ export function MatchDetailDialog({
       ]);
 
       if (cancelled) return;
-      setCreator((creatorRow as ProfileLite | null) ?? { id: activity.creator_id, full_name: null, avatar_url: null });
-
       const ids = ((parts ?? []) as { user_id: string }[]).map((p) => p.user_id);
-      if (ids.length === 0) {
-        setParticipants([]);
-        setLoading(false);
-        return;
-      }
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .in("id", ids);
+      const { data: profs } =
+        ids.length === 0
+          ? { data: [] as { id: string; full_name: string | null; avatar_url: string | null }[] }
+          : await supabase
+              .from("profiles")
+              .select("id, full_name, avatar_url")
+              .in("id", ids);
       if (cancelled) return;
+
+      // Batch-sign every avatar path we'll need to show.
+      const allPaths = [
+        (creatorRow as ProfileLite | null)?.avatar_url ?? null,
+        ...((profs ?? []).map((p) => p.avatar_url)),
+      ];
+      const signed = await resolveAvatarUrls(allPaths);
+      if (cancelled) return;
+
+      const creatorBase =
+        (creatorRow as ProfileLite | null) ??
+        { id: activity.creator_id, full_name: null, avatar_url: null };
+      setCreator({
+        ...creatorBase,
+        signedAvatarUrl: creatorBase.avatar_url ? signed[creatorBase.avatar_url] ?? null : null,
+      });
+
       const byId = new Map((profs ?? []).map((p) => [p.id, p as ProfileLite]));
       setParticipants(
-        ids.map(
-          (id) => byId.get(id) ?? { id, full_name: null, avatar_url: null },
-        ),
+        ids.map((id) => {
+          const base = byId.get(id) ?? { id, full_name: null, avatar_url: null };
+          return {
+            ...base,
+            signedAvatarUrl: base.avatar_url ? signed[base.avatar_url] ?? null : null,
+          };
+        }),
       );
       setLoading(false);
     })();
@@ -318,8 +337,10 @@ export function MatchDetailDialog({
           <h4 className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground mb-2">Created by</h4>
           <div className="flex items-center gap-3 surface-card rounded-xl p-3">
             <Avatar className="size-10">
-              <AvatarImage src={creator?.avatar_url ?? undefined} />
-              <AvatarFallback>{(creator?.full_name ?? "?").slice(0, 1).toUpperCase()}</AvatarFallback>
+              <AvatarImage src={creator?.signedAvatarUrl ?? undefined} alt={creator?.full_name ?? "Match creator"} />
+              <AvatarFallback className="bg-primary/15 text-primary font-medium">
+                {initialsFor(creator?.full_name) || (creator?.full_name ? creator.full_name.slice(0, 1).toUpperCase() : "P")}
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <div className="font-medium truncate flex items-center gap-1.5">
@@ -346,8 +367,10 @@ export function MatchDetailDialog({
               {participants.map((p) => (
                 <li key={p.id} className="flex items-center gap-3 rounded-xl p-2 hover:bg-accent/40">
                   <Avatar className="size-8">
-                    <AvatarImage src={p.avatar_url ?? undefined} />
-                    <AvatarFallback>{(p.full_name ?? "?").slice(0, 1).toUpperCase()}</AvatarFallback>
+                    <AvatarImage src={p.signedAvatarUrl ?? undefined} alt={p.full_name ?? "Player"} />
+                    <AvatarFallback className="bg-primary/15 text-primary text-xs font-medium">
+                      {initialsFor(p.full_name) || "P"}
+                    </AvatarFallback>
                   </Avatar>
                   <span className="text-sm font-medium truncate">
                     {p.id === authUserId ? "You" : p.full_name || "Player"}
